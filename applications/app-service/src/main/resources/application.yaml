@@ -37,6 +37,6 @@ cors:
 logging:
   level:
     root: INFO
-    co.com.bancolombia: DEBUG
+    co.com.pragma: DEBUG
     org.springframework.web: DEBUG
     org.mongodb.driver: INFO

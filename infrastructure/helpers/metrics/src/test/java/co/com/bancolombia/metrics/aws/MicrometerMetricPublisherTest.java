@@ -1,4 +1,4 @@
-package co.com.bancolombia.metrics.aws;
+package co.com.pragma.metrics.aws;
 
 import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import io.micrometer.core.instrument.logging.LoggingRegistryConfig;
