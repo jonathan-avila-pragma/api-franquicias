@@ -6,8 +6,6 @@ import co.com.bancolombia.model.gateways.FranchiseGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
 @RequiredArgsConstructor
 public class CreateFranchiseUseCase {
     private final FranchiseGateway franchiseGateway;
@@ -18,7 +16,11 @@ public class CreateFranchiseUseCase {
         }
         
         if (franchise.getId() == null || franchise.getId().trim().isEmpty()) {
-            franchise.setId(UUID.randomUUID().toString());
+            return franchiseGateway.getNextId()
+                    .flatMap(nextId -> {
+                        franchise.setId(nextId);
+                        return franchiseGateway.save(franchise);
+                    });
         }
         
         return franchiseGateway.save(franchise);

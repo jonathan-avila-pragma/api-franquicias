@@ -1,11 +1,11 @@
-package co.com.bancolombia.dynamodb;
+package co.com.bancolombia.mongodb;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@DynamoDbBean
+@Document(collection = "franchises")
 public class FranchiseEntity {
+    @Id
     private String id;
     private String name;
 
@@ -17,8 +17,6 @@ public class FranchiseEntity {
         this.name = name;
     }
 
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute("id")
     public String getId() {
         return id;
     }
@@ -27,7 +25,6 @@ public class FranchiseEntity {
         this.id = id;
     }
 
-    @DynamoDbAttribute("name")
     public String getName() {
         return name;
     }

@@ -11,6 +11,12 @@ spring:
       path: "/h2"
   profiles:
     include: null
+  mongodb:
+    embedded:
+      version: null
+  data:
+    mongodb:
+      uri: mongodb+srv://jonathanavila83_db_user:oKHayRCVJG2YiFAh@pruebas.kuhx1fs.mongodb.net/api-franquicias?retryWrites=true&w=majority
 management:
   endpoints:
     web:
@@ -20,14 +26,17 @@ management:
     health:
       probes:
         enabled: true
+  metrics:
+    mongo:
+      command:
+        enabled: false
+      connectionpool:
+        enabled: false
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
-aws:
-  region: "us-east-1"
-  dynamodb:
-    endpoint: "http://localhost:8000"
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+logging:
+  level:
+    root: INFO
+    co.com.bancolombia: DEBUG
+    org.springframework.web: DEBUG
+    org.mongodb.driver: INFO
