@@ -380,7 +380,7 @@ curl -X GET http://localhost:8080/api/franchises/{franchiseId}/max-stock-product
 
 ## Constantes
 
-Todas las constantes del proyecto están centralizadas en la clase `Constants` ubicada en `domain/model/src/main/java/co/com/bancolombia/model/Constants.java`.
+Todas las constantes del proyecto están centralizadas en la clase `Constants` ubicada en `domain/model/src/main/java/co/com/pragma/model/Constants.java`.
 
 ## Testing
 
