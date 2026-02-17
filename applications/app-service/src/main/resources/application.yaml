@@ -16,22 +16,30 @@ spring:
       version: null
   data:
     mongodb:
-      uri: mongodb+srv://jonathanavila83_db_user:oKHayRCVJG2YiFAh@pruebas.kuhx1fs.mongodb.net/api-franquicias?retryWrites=true&w=majority
+      host: ${MONGODB_HOST}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+      database: ${MONGODB_DATABASE}
+      uri: mongodb+srv://${spring.data.mongodb.username}:${spring.data.mongodb.password}@${spring.data.mongodb.host}/${spring.data.mongodb.database}?retryWrites=true&w=majority
 management:
   endpoints:
     web:
       exposure:
-        include: "health,prometheus"
+        include: "health,prometheus,circuitbreakers"
   endpoint:
     health:
       probes:
         enabled: true
+      show-details: always
   metrics:
     mongo:
       command:
         enabled: false
       connectionpool:
         enabled: false
+  health:
+    circuitbreakers:
+      enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 logging:
@@ -40,3 +48,21 @@ logging:
     co.com.pragma: DEBUG
     org.springframework.web: DEBUG
     org.mongodb.driver: INFO
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 60s
+        recordExceptions:
+          - java.lang.Exception
+    instances:
+      mongoOperations:
+        baseConfig: default

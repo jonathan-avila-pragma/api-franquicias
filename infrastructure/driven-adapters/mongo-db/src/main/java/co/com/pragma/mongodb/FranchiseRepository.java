@@ -3,7 +3,8 @@ package co.com.pragma.mongodb;
 import co.com.pragma.model.Constants;
 import co.com.pragma.model.Franchise;
 import co.com.pragma.model.gateways.FranchiseGateway;
-import lombok.extern.slf4j.Slf4j;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,24 +14,30 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Repository
 public class FranchiseRepository implements FranchiseGateway {
 
     private final ReactiveMongoTemplate mongoTemplate;
+    private final CircuitBreaker circuitBreaker;
 
-    public FranchiseRepository(ReactiveMongoTemplate mongoTemplate) {
+    public FranchiseRepository(ReactiveMongoTemplate mongoTemplate, CircuitBreaker mongoCircuitBreaker) {
         this.mongoTemplate = mongoTemplate;
+        this.circuitBreaker = mongoCircuitBreaker;
     }
 
     @Override
     public Mono<Franchise> save(Franchise franchise) {
-        FranchiseEntity entity = new FranchiseEntity(franchise.getId(), franchise.getName());
+        FranchiseEntity entity = new FranchiseEntity(franchise.getId(), franchise.getName(), franchise.getDescription());
         return mongoTemplate.save(entity)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(e -> {
                     Franchise f = new Franchise();
                     f.setId(e.getId());
                     f.setName(e.getName());
+                    f.setDescription(e.getDescription());
+                    if (f.getBranches() == null) {
+                        f.setBranches(new java.util.ArrayList<>());
+                    }
                     return f;
                 });
     }
@@ -38,10 +45,15 @@ public class FranchiseRepository implements FranchiseGateway {
     @Override
     public Mono<Franchise> findById(String id) {
         return mongoTemplate.findById(id, FranchiseEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {
                     Franchise franchise = new Franchise();
                     franchise.setId(entity.getId());
                     franchise.setName(entity.getName());
+                    franchise.setDescription(entity.getDescription());
+                    if (franchise.getBranches() == null) {
+                        franchise.setBranches(new java.util.ArrayList<>());
+                    }
                     return franchise;
                 });
     }
@@ -50,6 +62,7 @@ public class FranchiseRepository implements FranchiseGateway {
     public Mono<Void> deleteById(String id) {
         Query query = new Query(Criteria.where("id").is(id));
         return mongoTemplate.remove(query, FranchiseEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .then();
     }
 
@@ -63,38 +76,37 @@ public class FranchiseRepository implements FranchiseGateway {
     @Override
     public Flux<Franchise> findAll() {
         return mongoTemplate.findAll(FranchiseEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {
                     Franchise franchise = new Franchise();
                     franchise.setId(entity.getId());
                     franchise.setName(entity.getName());
+                    franchise.setDescription(entity.getDescription());
+                    if (franchise.getBranches() == null) {
+                        franchise.setBranches(new java.util.ArrayList<>());
+                    }
                     return franchise;
                 });
     }
 
     @Override
     public Mono<String> getNextId() {
-        log.info("Getting next franchise ID - Thread: {}", Thread.currentThread().getName());
         String sequenceName = "franchise_sequence";
         Query query = new Query(Criteria.where("id").is(sequenceName));
         Update update = new Update().inc("sequence", 1);
         FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
         
         return mongoTemplate.findAndModify(query, update, options, SequenceEntity.class)
-                .doOnNext(seq -> log.info("Sequence found, current value: {}", seq.getSequence()))
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .switchIfEmpty(
                     Mono.defer(() -> {
-                        log.info("Sequence not found, creating initial sequence");
                         SequenceEntity initial = new SequenceEntity(sequenceName, 0L);
                         return mongoTemplate.save(initial)
-                                .doOnNext(saved -> log.info("Initial sequence created with ID: {}", saved.getId()))
-                                .then(mongoTemplate.findAndModify(query, update, options, SequenceEntity.class));
+                                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+                                .then(mongoTemplate.findAndModify(query, update, options, SequenceEntity.class)
+                                        .transformDeferred(CircuitBreakerOperator.of(circuitBreaker)));
                     })
                 )
-                .map(sequence -> {
-                    String nextId = String.valueOf(sequence.getSequence());
-                    log.info("✓ Generated next franchise ID: {} - Thread: {}", nextId, Thread.currentThread().getName());
-                    return nextId;
-                })
-                .doOnError(error -> log.error("✗ Error generating next ID: {} - Thread: {}", error.getMessage(), Thread.currentThread().getName(), error));
+                .map(sequence -> String.valueOf(sequence.getSequence()));
     }
 }

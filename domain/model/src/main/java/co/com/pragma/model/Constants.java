@@ -28,4 +28,6 @@ public final class Constants {
     public static final String PATH_PRODUCT_ID = "/{franchiseId}/branches/{branchId}/products/{productId}";
     public static final String PATH_STOCK = "/{franchiseId}/branches/{branchId}/products/{productId}/stock";
     public static final String PATH_MAX_STOCK = "/{franchiseId}/max-stock-products";
+    public static final String PATH_FRANCHISE_ID = "/{franchiseId}";
+    public static final String PATH_PRODUCT_BY_NAME = "/{franchiseId}/branches/{branchId}/products/name/{productName}";
 }

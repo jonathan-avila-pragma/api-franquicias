@@ -10,4 +10,5 @@ public interface BranchGateway {
     Mono<Void> deleteById(String franchiseId, String branchId);
     Mono<Branch> update(String franchiseId, Branch branch);
     Flux<Branch> findAllByFranchiseId(String franchiseId);
+    Mono<String> getNextId();
 }

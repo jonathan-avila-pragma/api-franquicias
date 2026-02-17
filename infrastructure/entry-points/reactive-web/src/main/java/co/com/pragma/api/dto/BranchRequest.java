@@ -1,7 +1,14 @@
 package co.com.pragma.api.dto;
 
-public class BranchRequest {
-    private String name;
+import jakarta.validation.constraints.NotBlank;
+
+public class BranchRequest extends BaseBranchFields {
+    
+    @NotBlank(message = "Name is required")
+    @Override
+    public String getName() {
+        return super.getName();
+    }
 
     public BranchRequest() {
     }
@@ -10,11 +17,9 @@ public class BranchRequest {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public BranchRequest(String name, String address, String city) {
         this.name = name;
+        this.address = address;
+        this.city = city;
     }
 }

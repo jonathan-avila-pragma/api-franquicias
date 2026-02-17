@@ -3,30 +3,44 @@ package co.com.pragma.mongodb;
 import co.com.pragma.model.Branch;
 import co.com.pragma.model.Constants;
 import co.com.pragma.model.gateways.BranchGateway;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Repository
 public class BranchRepository implements BranchGateway {
 
     private final ReactiveMongoTemplate mongoTemplate;
+    private final CircuitBreaker circuitBreaker;
 
-    public BranchRepository(ReactiveMongoTemplate mongoTemplate) {
+    public BranchRepository(ReactiveMongoTemplate mongoTemplate, CircuitBreaker mongoCircuitBreaker) {
         this.mongoTemplate = mongoTemplate;
+        this.circuitBreaker = mongoCircuitBreaker;
     }
 
     @Override
     public Mono<Branch> save(String franchiseId, Branch branch) {
-        BranchEntity entity = new BranchEntity(franchiseId, branch.getId(), branch.getName());
+        BranchEntity entity = new BranchEntity(branch.getId(), franchiseId, branch.getName(), branch.getAddress(), branch.getCity());
         return mongoTemplate.save(entity)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(e -> {
                     Branch b = new Branch();
                     b.setId(e.getId());
                     b.setName(e.getName());
+                    b.setAddress(e.getAddress());
+                    b.setCity(e.getCity());
+                    if (b.getProducts() == null) {
+                        b.setProducts(new java.util.ArrayList<>());
+                    }
                     return b;
                 });
     }
@@ -35,10 +49,16 @@ public class BranchRepository implements BranchGateway {
     public Mono<Branch> findById(String franchiseId, String branchId) {
         Query query = new Query(Criteria.where("franchiseId").is(franchiseId).and("id").is(branchId));
         return mongoTemplate.findOne(query, BranchEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {
                     Branch branch = new Branch();
                     branch.setId(entity.getId());
                     branch.setName(entity.getName());
+                    branch.setAddress(entity.getAddress());
+                    branch.setCity(entity.getCity());
+                    if (branch.getProducts() == null) {
+                        branch.setProducts(new java.util.ArrayList<>());
+                    }
                     return branch;
                 });
     }
@@ -47,6 +67,7 @@ public class BranchRepository implements BranchGateway {
     public Mono<Void> deleteById(String franchiseId, String branchId) {
         Query query = new Query(Criteria.where("franchiseId").is(franchiseId).and("id").is(branchId));
         return mongoTemplate.remove(query, BranchEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .then();
     }
 
@@ -61,11 +82,47 @@ public class BranchRepository implements BranchGateway {
     public Flux<Branch> findAllByFranchiseId(String franchiseId) {
         Query query = new Query(Criteria.where("franchiseId").is(franchiseId));
         return mongoTemplate.find(query, BranchEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {
                     Branch branch = new Branch();
                     branch.setId(entity.getId());
                     branch.setName(entity.getName());
+                    branch.setAddress(entity.getAddress());
+                    branch.setCity(entity.getCity());
+                    if (branch.getProducts() == null) {
+                        branch.setProducts(new java.util.ArrayList<>());
+                    }
                     return branch;
                 });
+    }
+
+    @Override
+    public Mono<String> getNextId() {
+        log.info("Getting next branch ID - Thread: {}", Thread.currentThread().getName());
+        String sequenceName = "branch_sequence";
+        Query query = new Query(Criteria.where("id").is(sequenceName));
+        Update update = new Update().inc("sequence", 1);
+        FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
+        
+        return mongoTemplate.findAndModify(query, update, options, SequenceEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+                .doOnNext(seq -> log.info("Sequence found, current value: {}", seq.getSequence()))
+                .switchIfEmpty(
+                    Mono.defer(() -> {
+                        log.info("Sequence not found, creating initial sequence");
+                        SequenceEntity initial = new SequenceEntity(sequenceName, 0L);
+                        return mongoTemplate.save(initial)
+                                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+                                .doOnNext(saved -> log.info("Initial sequence created with ID: {}", saved.getId()))
+                                .then(mongoTemplate.findAndModify(query, update, options, SequenceEntity.class)
+                                        .transformDeferred(CircuitBreakerOperator.of(circuitBreaker)));
+                    })
+                )
+                .map(sequence -> {
+                    String nextId = String.valueOf(sequence.getSequence());
+                    log.info("✓ Generated next branch ID: {} - Thread: {}", nextId, Thread.currentThread().getName());
+                    return nextId;
+                })
+                .doOnError(error -> log.error("✗ Error generating next branch ID: {} - Thread: {}", error.getMessage(), Thread.currentThread().getName(), error));
     }
 }

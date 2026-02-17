@@ -1,6 +1,5 @@
 package co.com.pragma.usecase.addproduct;
 
-import co.com.pragma.model.Branch;
 import co.com.pragma.model.Constants;
 import co.com.pragma.model.Product;
 import co.com.pragma.model.gateways.BranchGateway;
@@ -8,8 +7,6 @@ import co.com.pragma.model.gateways.FranchiseGateway;
 import co.com.pragma.model.gateways.ProductGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class AddProductUseCase {
@@ -30,10 +27,9 @@ public class AddProductUseCase {
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(Constants.ERROR_FRANCHISE_NOT_FOUND)))
                 .flatMap(franchise -> branchGateway.findById(franchiseId, branchId))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(Constants.ERROR_BRANCH_NOT_FOUND)))
-                .flatMap(branch -> {
-                    if (product.getId() == null || product.getId().trim().isEmpty()) {
-                        product.setId(UUID.randomUUID().toString());
-                    }
+                .flatMap(branch -> productGateway.getNextId())
+                .flatMap(nextId -> {
+                    product.setId(nextId);
                     return productGateway.save(franchiseId, branchId, product);
                 });
     }

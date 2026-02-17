@@ -16,6 +16,7 @@ public enum BusinessCode {
     B400002("B400002", "Validación de datos fallida"),
     B404000("B404000", "Recurso no encontrado"),
     B409000("B409000", "Conflicto de negocio"),
+    B503000("B503000", "Servicio temporalmente no disponible - Circuit Breaker abierto"),
     E500000("E500000", "Error interno del servidor");
     
     private final String code;

@@ -141,25 +141,31 @@ public class RouterRest {
             path = "/api/franchises/{franchiseId}/branches/{branchId}",
             method = RequestMethod.PUT,
             beanClass = Handler.class,
-            beanMethod = "updateBranchName",
+            beanMethod = "updateBranch",
                 operation = @Operation(
-                operationId = "updateBranchName",
-                summary = "Update branch name",
+                operationId = "updateBranch",
+                summary = "Update branch (name, address, city) - all fields are optional",
+                description = "Update branch fields. Only provided fields will be updated, others will remain unchanged.",
                 tags = {"Branches"},
                 parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "franchiseId", description = "Franchise ID"),
                     @Parameter(in = ParameterIn.PATH, name = "branchId", description = "Branch ID")
                 },
-                requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = UpdateNameRequest.class))),
+                requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = UpdateBranchRequest.class))),
                 responses = {
                     @ApiResponse(
                         responseCode = "200",
-                        description = "Name updated successfully",
+                        description = "Branch updated successfully",
                         content = @Content(schema = @Schema(implementation = BranchResponseDto.class))
                     ),
                     @ApiResponse(
                         responseCode = "400",
                         description = "Invalid request",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "404",
+                        description = "Branch or franchise not found",
                         content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
                     ),
                     @ApiResponse(
@@ -332,19 +338,116 @@ public class RouterRest {
                     )
                 }
             )
+        ),
+        @RouterOperation(
+            path = "/api/franchises/{franchiseId}",
+            method = RequestMethod.GET,
+            beanClass = Handler.class,
+            beanMethod = "getFranchiseById",
+                operation = @Operation(
+                operationId = "getFranchiseById",
+                summary = "Get franchise by ID",
+                tags = {"Franchises"},
+                parameters = {@Parameter(in = ParameterIn.PATH, name = "franchiseId", description = "Franchise ID")},
+                responses = {
+                    @ApiResponse(
+                        responseCode = "200",
+                        description = "Franchise found",
+                        content = @Content(schema = @Schema(implementation = FranchiseResponseDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "404",
+                        description = "Franchise not found",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    )
+                }
+            )
+        ),
+        @RouterOperation(
+            path = "/api/franchises/{franchiseId}/branches/{branchId}",
+            method = RequestMethod.GET,
+            beanClass = Handler.class,
+            beanMethod = "getBranchById",
+                operation = @Operation(
+                operationId = "getBranchById",
+                summary = "Get branch by ID",
+                tags = {"Branches"},
+                parameters = {
+                    @Parameter(in = ParameterIn.PATH, name = "franchiseId", description = "Franchise ID"),
+                    @Parameter(in = ParameterIn.PATH, name = "branchId", description = "Branch ID")
+                },
+                responses = {
+                    @ApiResponse(
+                        responseCode = "200",
+                        description = "Branch found",
+                        content = @Content(schema = @Schema(implementation = BranchResponseDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "404",
+                        description = "Branch not found",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    )
+                }
+            )
+        ),
+        @RouterOperation(
+            path = "/api/franchises/{franchiseId}/branches/{branchId}/products/name/{productName}",
+            method = RequestMethod.GET,
+            beanClass = Handler.class,
+            beanMethod = "getProductByName",
+                operation = @Operation(
+                operationId = "getProductByName",
+                summary = "Get product by name",
+                tags = {"Products"},
+                parameters = {
+                    @Parameter(in = ParameterIn.PATH, name = "franchiseId", description = "Franchise ID"),
+                    @Parameter(in = ParameterIn.PATH, name = "branchId", description = "Branch ID"),
+                    @Parameter(in = ParameterIn.PATH, name = "productName", description = "Product name")
+                },
+                responses = {
+                    @ApiResponse(
+                        responseCode = "200",
+                        description = "Product found",
+                        content = @Content(schema = @Schema(implementation = ProductResponseDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "404",
+                        description = "Product not found",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    )
+                }
+            )
         )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return nest(path(Constants.API_BASE_PATH),
                 route(GET(""), handler::getAllFranchises)
                         .andRoute(POST(""), handler::createFranchise)
+                        .andRoute(GET(Constants.PATH_FRANCHISE_ID), handler::getFranchiseById)
                         .andRoute(POST(Constants.PATH_BRANCHES), handler::addBranch)
+                        .andRoute(GET(Constants.PATH_BRANCH_ID), handler::getBranchById)
                         .andRoute(POST(Constants.PATH_PRODUCTS), handler::addProduct)
                         .andRoute(DELETE(Constants.PATH_PRODUCT_ID), handler::deleteProduct)
                         .andRoute(PUT(Constants.PATH_STOCK), handler::updateProductStock)
                         .andRoute(GET(Constants.PATH_MAX_STOCK), handler::getMaxStockProducts)
                         .andRoute(PUT(Constants.PATH_ID), handler::updateFranchiseName)
-                        .andRoute(PUT(Constants.PATH_BRANCH_ID), handler::updateBranchName)
-                        .andRoute(PUT(Constants.PATH_PRODUCT_ID), handler::updateProductName));
+                        .andRoute(PUT(Constants.PATH_BRANCH_ID), handler::updateBranch)
+                        .andRoute(PUT(Constants.PATH_PRODUCT_ID), handler::updateProductName)
+                        .andRoute(GET(Constants.PATH_PRODUCT_BY_NAME), handler::getProductByName));
     }
 }

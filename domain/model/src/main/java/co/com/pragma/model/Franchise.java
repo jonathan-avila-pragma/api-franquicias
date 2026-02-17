@@ -6,6 +6,7 @@ import java.util.List;
 public class Franchise {
     private String id;
     private String name;
+    private String description;
     private List<Branch> branches;
 
     public Franchise() {
@@ -18,9 +19,23 @@ public class Franchise {
         this.branches = new ArrayList<>();
     }
 
+    public Franchise(String id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.branches = new ArrayList<>();
+    }
+
     public Franchise(String id, String name, List<Branch> branches) {
         this.id = id;
         this.name = name;
+        this.branches = branches != null ? branches : new ArrayList<>();
+    }
+
+    public Franchise(String id, String name, String description, List<Branch> branches) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
         this.branches = branches != null ? branches : new ArrayList<>();
     }
 
@@ -46,5 +61,13 @@ public class Franchise {
 
     public void setBranches(List<Branch> branches) {
         this.branches = branches != null ? branches : new ArrayList<>();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

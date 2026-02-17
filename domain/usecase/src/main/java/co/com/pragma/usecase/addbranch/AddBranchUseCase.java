@@ -2,13 +2,10 @@ package co.com.pragma.usecase.addbranch;
 
 import co.com.pragma.model.Branch;
 import co.com.pragma.model.Constants;
-import co.com.pragma.model.Franchise;
 import co.com.pragma.model.gateways.BranchGateway;
 import co.com.pragma.model.gateways.FranchiseGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class AddBranchUseCase {
@@ -22,10 +19,9 @@ public class AddBranchUseCase {
         
         return franchiseGateway.findById(franchiseId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(Constants.ERROR_FRANCHISE_NOT_FOUND)))
-                .flatMap(franchise -> {
-                    if (branch.getId() == null || branch.getId().trim().isEmpty()) {
-                        branch.setId(UUID.randomUUID().toString());
-                    }
+                .flatMap(franchise -> branchGateway.getNextId())
+                .flatMap(nextId -> {
+                    branch.setId(nextId);
                     return branchGateway.save(franchiseId, branch);
                 });
     }
