@@ -20,7 +20,6 @@ import co.com.pragma.usecase.updatebranch.UpdateBranchUseCase;
 import co.com.pragma.usecase.updatefranchisename.UpdateFranchiseNameUseCase;
 import co.com.pragma.usecase.updateproductname.UpdateProductNameUseCase;
 import co.com.pragma.usecase.updateproductstock.UpdateProductStockUseCase;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

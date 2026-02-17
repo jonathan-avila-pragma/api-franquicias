@@ -64,8 +64,7 @@ public class Handler {
         return request.bodyToMono(FranchiseRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(franchiseRequest -> {
-                    // Sanitizar el nombre
-                    String sanitizedName = InputSanitizer.validateAndSanitizeName(franchiseRequest.getName());
+                    String sanitizedName = InputSanitizer.validateAndSanitizeId(franchiseRequest.getName());
                     franchiseRequest.setName(sanitizedName);
                     log.info("Creating franchise with name: {}", sanitizedName);
                 })
@@ -227,7 +226,8 @@ public class Handler {
                         .bodyValue(ResponseUtil.responseError(BusinessCode.E500000)));
     }
 
-    public Mono<ServerResponse> getAllFranchises(ServerRequest ignored) {
+    @SuppressWarnings("java:S1172") // ServerRequest parameter required by RouterFunction signature
+    public Mono<ServerResponse> getAllFranchises(ServerRequest request) {
         log.info("Received GET request to get all franchises");
         return getAllFranchisesUseCase.execute()
                 .collectList()
