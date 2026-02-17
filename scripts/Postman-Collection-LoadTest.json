@@ -1,0 +1,97 @@
+{
+	"info": {
+		"_postman_id": "load-test-franchises",
+		"name": "Load Test - Create Franchises",
+		"description": "Colección para pruebas de carga de creación de franquicias con nombres aleatorios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Franchise (Random Name)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generar número aleatorio entre 1 y 1000",
+							"const randomNumber = Math.floor(Math.random() * 1000) + 1;",
+							"",
+							"// Generar nombre con formato \"fra\" + número aleatorio",
+							"const franchiseName = `fra${randomNumber}`;",
+							"",
+							"// Establecer la variable de entorno para usar en el body",
+							"pm.environment.set(\"franchise_name\", franchiseName);",
+							"pm.environment.set(\"random_number\", randomNumber);",
+							"",
+							"// Log para debugging",
+							"console.log(`Generated franchise name: ${franchiseName}`);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"    pm.expect(jsonData).to.have.property('title');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.code).to.eql('S201000');",
+							"});",
+							"",
+							"pm.test(\"Franchise ID is numeric\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var id = jsonData.data.id;",
+							"    pm.expect(id).to.match(/^\\d+$/);",
+							"    console.log(`Created franchise with ID: ${id}`);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{franchise_name}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/franchises",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"franchises"
+					]
+				},
+				"description": "Crea una nueva franquicia con un nombre aleatorio (fra1 a fra1000)"
+			},
+			"response": []
+		}
+	]
+}
