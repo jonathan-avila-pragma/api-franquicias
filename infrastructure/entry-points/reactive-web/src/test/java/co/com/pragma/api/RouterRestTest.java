@@ -86,13 +86,10 @@ class RouterRestTest {
     
     @Mock
     private ValidationHelper validationHelper;
-    
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        objectMapper = new ObjectMapper();
         
         // Configurar ValidationHelper mock para que retorne el objeto validado
         when(validationHelper.validate(any()))

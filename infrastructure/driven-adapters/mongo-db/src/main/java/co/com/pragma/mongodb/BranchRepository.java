@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 @Repository
 public class BranchRepository implements BranchGateway {
 
+    private static final String FIELD_FRANCHISE_ID = "franchiseId";
+
     private final ReactiveMongoTemplate mongoTemplate;
     private final CircuitBreaker circuitBreaker;
 
@@ -47,7 +49,7 @@ public class BranchRepository implements BranchGateway {
 
     @Override
     public Mono<Branch> findById(String franchiseId, String branchId) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId).and("id").is(branchId));
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId).and("id").is(branchId));
         return mongoTemplate.findOne(query, BranchEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {
@@ -65,7 +67,7 @@ public class BranchRepository implements BranchGateway {
 
     @Override
     public Mono<Void> deleteById(String franchiseId, String branchId) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId).and("id").is(branchId));
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId).and("id").is(branchId));
         return mongoTemplate.remove(query, BranchEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .then();
@@ -80,7 +82,7 @@ public class BranchRepository implements BranchGateway {
 
     @Override
     public Flux<Branch> findAllByFranchiseId(String franchiseId) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId));
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId));
         return mongoTemplate.find(query, BranchEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(entity -> {

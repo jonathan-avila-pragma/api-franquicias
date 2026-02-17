@@ -12,6 +12,10 @@ import java.util.regex.Pattern;
 @Slf4j
 public class InputSanitizer {
 
+    private InputSanitizer() {
+        // Utility class - prevent instantiation
+    }
+
     // Patrones peligrosos que podrían usarse para NoSQL injection
     private static final Pattern[] DANGEROUS_PATTERNS = {
         Pattern.compile(".*\\$.*", Pattern.CASE_INSENSITIVE), // Operadores MongoDB ($gt, $ne, etc.)
