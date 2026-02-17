@@ -18,7 +18,6 @@ public class UpdateBranchUseCase {
                 .flatMap(franchise -> branchGateway.findById(franchiseId, branchId))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(Constants.ERROR_BRANCH_NOT_FOUND)))
                 .flatMap(existingBranch -> {
-                    // Actualizar solo los campos que vienen en branchUpdate (no null)
                     if (branchUpdate.getName() != null && !branchUpdate.getName().trim().isEmpty()) {
                         existingBranch.setName(branchUpdate.getName().trim());
                     }

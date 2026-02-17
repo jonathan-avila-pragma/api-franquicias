@@ -4,8 +4,6 @@ import co.com.pragma.model.Franchise;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public interface FranchiseGateway {
     Mono<Franchise> save(Franchise franchise);
     Mono<Franchise> findById(String id);

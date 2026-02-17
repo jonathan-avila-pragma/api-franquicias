@@ -24,6 +24,9 @@ import java.util.Objects;
 @Repository
 public class ProductRepository implements ProductGateway {
 
+    private static final String FIELD_FRANCHISE_ID = "franchiseId";
+    private static final String FIELD_BRANCH_ID = "branchId";
+
     private final ReactiveMongoTemplate mongoTemplate;
     private final BranchGateway branchGateway;
     private final CircuitBreaker circuitBreaker;
@@ -50,8 +53,8 @@ public class ProductRepository implements ProductGateway {
 
     @Override
     public Mono<Product> findById(String franchiseId, String branchId, String productId) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId)
-                .and("branchId").is(branchId)
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId)
+                .and(FIELD_BRANCH_ID).is(branchId)
                 .and("id").is(productId));
         return mongoTemplate.findOne(query, ProductEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
@@ -66,8 +69,8 @@ public class ProductRepository implements ProductGateway {
 
     @Override
     public Mono<Product> findByName(String franchiseId, String branchId, String productName) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId)
-                .and("branchId").is(branchId)
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId)
+                .and(FIELD_BRANCH_ID).is(branchId)
                 .and("name").is(productName));
         return mongoTemplate.findOne(query, ProductEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
@@ -82,8 +85,8 @@ public class ProductRepository implements ProductGateway {
 
     @Override
     public Mono<Void> deleteById(String franchiseId, String branchId, String productId) {
-        Query query = new Query(Criteria.where("franchiseId").is(franchiseId)
-                .and("branchId").is(branchId)
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId)
+                .and(FIELD_BRANCH_ID).is(branchId)
                 .and("id").is(productId));
         return mongoTemplate.remove(query, ProductEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
@@ -101,8 +104,8 @@ public class ProductRepository implements ProductGateway {
     public Flux<ProductWithBranch> findMaxStockProductsByFranchise(String franchiseId) {
         return branchGateway.findAllByFranchiseId(franchiseId)
                 .flatMap(branch -> {
-                    Query query = new Query(Criteria.where("franchiseId").is(franchiseId)
-                            .and("branchId").is(branch.getId()));
+                    Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId)
+                            .and(FIELD_BRANCH_ID).is(branch.getId()));
                     return mongoTemplate.find(query, ProductEntity.class)
                             .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                             .map(entity -> {

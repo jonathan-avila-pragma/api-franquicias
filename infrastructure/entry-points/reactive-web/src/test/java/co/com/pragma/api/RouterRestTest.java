@@ -20,7 +20,6 @@ import co.com.pragma.usecase.updatebranch.UpdateBranchUseCase;
 import co.com.pragma.usecase.updatefranchisename.UpdateFranchiseNameUseCase;
 import co.com.pragma.usecase.updateproductname.UpdateProductNameUseCase;
 import co.com.pragma.usecase.updateproductstock.UpdateProductStockUseCase;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -86,13 +85,10 @@ class RouterRestTest {
     
     @Mock
     private ValidationHelper validationHelper;
-    
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        objectMapper = new ObjectMapper();
         
         // Configurar ValidationHelper mock para que retorne el objeto validado
         when(validationHelper.validate(any()))

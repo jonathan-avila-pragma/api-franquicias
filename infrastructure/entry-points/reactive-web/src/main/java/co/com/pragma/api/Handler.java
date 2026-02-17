@@ -37,6 +37,11 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class Handler {
+
+    private static final String PATH_VAR_FRANCHISE_ID = "franchiseId";
+    private static final String PATH_VAR_BRANCH_ID = "branchId";
+    private static final String PATH_VAR_PRODUCT_ID = "productId";
+    private static final String PATH_VAR_PRODUCT_NAME = "productName";
     
     private final CreateFranchiseUseCase createFranchiseUseCase;
     private final AddBranchUseCase addBranchUseCase;
@@ -59,7 +64,6 @@ public class Handler {
         return request.bodyToMono(FranchiseRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(franchiseRequest -> {
-                    // Sanitizar el nombre
                     String sanitizedName = InputSanitizer.validateAndSanitizeName(franchiseRequest.getName());
                     franchiseRequest.setName(sanitizedName);
                     log.info("Creating franchise with name: {}", sanitizedName);
@@ -98,7 +102,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> addBranch(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         return request.bodyToMono(BranchRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(branchRequest -> {
@@ -128,8 +132,8 @@ public class Handler {
     }
 
     public Mono<ServerResponse> addProduct(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
         return request.bodyToMono(ProductRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(productRequest -> {
@@ -159,9 +163,9 @@ public class Handler {
     }
 
     public Mono<ServerResponse> deleteProduct(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
-        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable("productId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_PRODUCT_ID));
         return deleteProductUseCase.execute(franchiseId, branchId, productId)
                 .then(Mono.just(ResponseUtil.responseSuccessful(null, BusinessCode.S200000)))
                 .flatMap(response -> ServerResponse
@@ -179,9 +183,9 @@ public class Handler {
     }
 
     public Mono<ServerResponse> updateProductStock(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
-        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable("productId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_PRODUCT_ID));
         return request.bodyToMono(UpdateStockRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(updateStockRequest -> 
@@ -204,7 +208,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getMaxStockProducts(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         return getMaxStockProductsUseCase.execute(franchiseId)
                 .collectList()
                 .map(products -> ResponseUtil.responseSuccessful(products, BusinessCode.S200000))
@@ -222,6 +226,7 @@ public class Handler {
                         .bodyValue(ResponseUtil.responseError(BusinessCode.E500000)));
     }
 
+    @SuppressWarnings("java:S1172") // ServerRequest parameter required by RouterFunction signature
     public Mono<ServerResponse> getAllFranchises(ServerRequest request) {
         log.info("Received GET request to get all franchises");
         return getAllFranchisesUseCase.execute()
@@ -242,7 +247,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> updateFranchiseName(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         return request.bodyToMono(UpdateNameRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(updateNameRequest -> {
@@ -267,8 +272,8 @@ public class Handler {
     }
 
     public Mono<ServerResponse> updateBranchName(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
         return request.bodyToMono(UpdateNameRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(updateNameRequest -> {
@@ -293,8 +298,8 @@ public class Handler {
     }
 
     public Mono<ServerResponse> updateBranch(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
         log.info("Received PUT request to update branch: {} for franchise: {}", branchId, franchiseId);
         return request.bodyToMono(UpdateBranchRequest.class)
                 .flatMap(validationHelper::validate)
@@ -325,9 +330,9 @@ public class Handler {
     }
 
     public Mono<ServerResponse> updateProductName(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
-        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable("productId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        String productId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_PRODUCT_ID));
         return request.bodyToMono(UpdateNameRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(updateNameRequest -> {
@@ -352,7 +357,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getFranchiseById(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         log.info("Received GET request to get franchise by ID: {}", franchiseId);
         return getFranchiseByIdUseCase.execute(franchiseId)
                 .doOnNext(franchise -> log.info("Franchise found: {}", franchise.getId()))
@@ -377,8 +382,8 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getBranchById(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
         log.info("Received GET request to get branch by ID: {} for franchise: {}", branchId, franchiseId);
         return getBranchByIdUseCase.execute(franchiseId, branchId)
                 .doOnNext(branch -> log.info("Branch found: {}", branch.getId()))
@@ -403,9 +408,9 @@ public class Handler {
     }
 
     public Mono<ServerResponse> getProductByName(ServerRequest request) {
-        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable("franchiseId"));
-        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable("branchId"));
-        String productName = InputSanitizer.validateAndSanitizeName(request.pathVariable("productName"));
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        String productName = InputSanitizer.validateAndSanitizeName(request.pathVariable(PATH_VAR_PRODUCT_NAME));
         log.info("Received GET request to get product by name: {} for branch: {} in franchise: {}", productName, branchId, franchiseId);
         return getProductByNameUseCase.execute(franchiseId, branchId, productName)
                 .doOnNext(product -> log.info("Product found: {}", product.getName()))
