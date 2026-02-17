@@ -64,7 +64,7 @@ public class Handler {
         return request.bodyToMono(FranchiseRequest.class)
                 .flatMap(validationHelper::validate)
                 .doOnNext(franchiseRequest -> {
-                    String sanitizedName = InputSanitizer.validateAndSanitizeId(franchiseRequest.getName());
+                    String sanitizedName = InputSanitizer.validateAndSanitizeName(franchiseRequest.getName());
                     franchiseRequest.setName(sanitizedName);
                     log.info("Creating franchise with name: {}", sanitizedName);
                 })

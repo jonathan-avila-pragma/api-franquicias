@@ -34,17 +34,7 @@ public class BranchRepository implements BranchGateway {
         BranchEntity entity = new BranchEntity(branch.getId(), franchiseId, branch.getName(), branch.getAddress(), branch.getCity());
         return mongoTemplate.save(entity)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(e -> {
-                    Branch b = new Branch();
-                    b.setId(e.getId());
-                    b.setName(e.getName());
-                    b.setAddress(e.getAddress());
-                    b.setCity(e.getCity());
-                    if (b.getProducts() == null) {
-                        b.setProducts(new java.util.ArrayList<>());
-                    }
-                    return b;
-                });
+                .map(this::mapToBranch);
     }
 
     @Override
@@ -52,17 +42,7 @@ public class BranchRepository implements BranchGateway {
         Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId).and("id").is(branchId));
         return mongoTemplate.findOne(query, BranchEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(entity -> {
-                    Branch branch = new Branch();
-                    branch.setId(entity.getId());
-                    branch.setName(entity.getName());
-                    branch.setAddress(entity.getAddress());
-                    branch.setCity(entity.getCity());
-                    if (branch.getProducts() == null) {
-                        branch.setProducts(new java.util.ArrayList<>());
-                    }
-                    return branch;
-                });
+                .map(this::mapToBranch);
     }
 
     @Override
@@ -85,17 +65,7 @@ public class BranchRepository implements BranchGateway {
         Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId));
         return mongoTemplate.find(query, BranchEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(entity -> {
-                    Branch branch = new Branch();
-                    branch.setId(entity.getId());
-                    branch.setName(entity.getName());
-                    branch.setAddress(entity.getAddress());
-                    branch.setCity(entity.getCity());
-                    if (branch.getProducts() == null) {
-                        branch.setProducts(new java.util.ArrayList<>());
-                    }
-                    return branch;
-                });
+                .map(this::mapToBranch);
     }
 
     @Override
@@ -126,5 +96,21 @@ public class BranchRepository implements BranchGateway {
                     return nextId;
                 })
                 .doOnError(error -> log.error("✗ Error generating next branch ID: {} - Thread: {}", error.getMessage(), Thread.currentThread().getName(), error));
+    }
+
+    private Branch mapToBranch(BranchEntity entity) {
+        Branch branch = new Branch();
+        branch.setId(entity.getId());
+        branch.setName(entity.getName());
+        branch.setAddress(entity.getAddress());
+        branch.setCity(entity.getCity());
+        initializeProductsIfNull(branch);
+        return branch;
+    }
+
+    private void initializeProductsIfNull(Branch branch) {
+        if (branch.getProducts() == null) {
+            branch.setProducts(new java.util.ArrayList<>());
+        }
     }
 }
