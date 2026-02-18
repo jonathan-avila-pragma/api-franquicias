@@ -172,6 +172,41 @@ Una vez que la aplicación esté ejecutándose, puedes acceder a:
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **API Docs**: http://localhost:8080/api-docs
 
+## Colecciones de Postman
+
+El proyecto incluye colecciones de Postman para facilitar las pruebas de la API:
+
+### Colección Completa de Endpoints
+
+La colección `ApiFranquicias-Flat.postman_collection.json` contiene todos los endpoints disponibles de la API organizados por categorías (Franchises, Branches, Products). Esta colección es ideal para:
+
+- Probar manualmente cada endpoint
+- Explorar la funcionalidad completa de la API
+- Usar como referencia para desarrollo frontend
+- Realizar pruebas de integración
+
+**Ubicación**: `scripts/ApiFranquicias-Flat.postman_collection.json`
+
+### Colección de Pruebas de Carga
+
+La colección `Postman-Collection-LoadTest.json` está diseñada para generar datos masivos de prueba de forma automatizada. Esta colección crea:
+
+- **100 franquicias** con nombres únicos
+- **10-20 sucursales** por cada franquicia (aleatorio)
+- **10+ productos** por cada sucursal (aleatorio entre 10-20)
+- **Stock aleatorio** entre 10-500 unidades por producto
+
+Los productos pueden repetirse entre diferentes sucursales para mayor realismo. Esta colección es ideal para:
+
+- Pruebas de carga y rendimiento
+- Poblar la base de datos con datos de prueba
+- Validar el comportamiento bajo volumen de datos
+- Probar la escalabilidad de la API
+
+**Ubicación**: `scripts/Postman-Collection-LoadTest.json`
+
+Para más detalles sobre cómo ejecutar las pruebas de carga, consulta el archivo [`LOAD-TEST-INSTRUCTIONS.md`](scripts/LOAD-TEST-INSTRUCTIONS.md).
+
 ## Estructura de Respuestas
 
 La API utiliza una estructura de respuesta estandarizada para mantener idempotencia y consistencia en todas las respuestas.
