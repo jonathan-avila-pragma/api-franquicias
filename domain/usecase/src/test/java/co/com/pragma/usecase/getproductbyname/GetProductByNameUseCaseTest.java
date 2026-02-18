@@ -39,7 +39,7 @@ class GetProductByNameUseCaseTest {
 
     @Test
     void execute_Success() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
         Branch branch = new Branch();
         branch.setId("1");
         Product product = new Product("1", "Test Product", 100);
@@ -124,7 +124,7 @@ class GetProductByNameUseCaseTest {
 
     @Test
     void execute_BranchNotFound() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "999")).thenReturn(Mono.empty());
@@ -141,7 +141,7 @@ class GetProductByNameUseCaseTest {
 
     @Test
     void execute_ProductNotFound() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
         Branch branch = new Branch();
         branch.setId("1");
 

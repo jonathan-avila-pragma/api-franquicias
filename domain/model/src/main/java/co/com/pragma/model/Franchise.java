@@ -1,73 +1,28 @@
 package co.com.pragma.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Franchise {
     private String id;
     private String name;
     private String description;
-    private List<Branch> branches;
-
-    public Franchise() {
-        this.branches = new ArrayList<>();
-    }
-
-    public Franchise(String id, String name) {
-        this.id = id;
-        this.name = name;
-        this.branches = new ArrayList<>();
-    }
-
-    public Franchise(String id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.branches = new ArrayList<>();
-    }
-
-    public Franchise(String id, String name, List<Branch> branches) {
-        this.id = id;
-        this.name = name;
-        this.branches = branches != null ? branches : new ArrayList<>();
-    }
-
-    public Franchise(String id, String name, String description, List<Branch> branches) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.branches = branches != null ? branches : new ArrayList<>();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Branch> getBranches() {
-        return branches;
-    }
+    @Builder.Default
+    private List<Branch> branches = new ArrayList<>();
 
     public void setBranches(List<Branch> branches) {
         this.branches = branches != null ? branches : new ArrayList<>();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

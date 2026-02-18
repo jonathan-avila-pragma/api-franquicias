@@ -68,7 +68,7 @@ class UpdateProductNameUseCaseTest {
 
     @Test
     void testExecuteBranchNotFound() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "999")).thenReturn(Mono.empty());
 
@@ -84,8 +84,8 @@ class UpdateProductNameUseCaseTest {
 
     @Test
     void testExecuteProductNotFound() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
+        Branch branch = Branch.builder().id("1").name("Branch 1").address("Address").city("City").build();
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "1")).thenReturn(Mono.just(branch));
         when(productGateway.findById("1", "1", "999")).thenReturn(Mono.empty());
@@ -103,8 +103,8 @@ class UpdateProductNameUseCaseTest {
 
     @Test
     void testExecuteSuccess() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
+        Branch branch = Branch.builder().id("1").name("Branch 1").address("Address").city("City").build();
         Product product = new Product("1", "Old Name", 10);
         Product updatedProduct = new Product("1", "New Name", 10);
 

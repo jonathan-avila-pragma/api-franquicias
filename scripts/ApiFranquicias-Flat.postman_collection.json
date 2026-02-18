@@ -378,6 +378,45 @@
           "response": []
         },
         {
+          "name": "Get products by branch",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/franchises/:franchiseId/branches/:branchId/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "franchises",
+                ":franchiseId",
+                "branches",
+                ":branchId",
+                "products"
+              ],
+              "variable": [
+                {
+                  "key": "franchiseId",
+                  "value": "",
+                  "description": "Franchise ID"
+                },
+                {
+                  "key": "branchId",
+                  "value": "",
+                  "description": "Branch ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Update product name",
           "request": {
             "method": "PUT",

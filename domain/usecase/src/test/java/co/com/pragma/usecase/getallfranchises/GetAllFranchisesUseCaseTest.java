@@ -27,8 +27,8 @@ class GetAllFranchisesUseCaseTest {
 
     @Test
     void testExecute() {
-        Franchise franchise1 = new Franchise("1", "Franchise 1", "Description 1");
-        Franchise franchise2 = new Franchise("2", "Franchise 2", "Description 2");
+        Franchise franchise1 = Franchise.builder().id("1").name("Franchise 1").description("Description 1").build();
+        Franchise franchise2 = Franchise.builder().id("2").name("Franchise 2").description("Description 2").build();
 
         when(franchiseGateway.findAll()).thenReturn(Flux.just(franchise1, franchise2));
 

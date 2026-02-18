@@ -34,7 +34,7 @@ class GetMaxStockProductsUseCaseTest {
         product.setName("Product 1");
         product.setStock(100);
 
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Branch branch = Branch.builder().id("1").name("Branch 1").address("Address").city("City").build();
 
         ProductWithBranch productWithBranch = new ProductWithBranch(product, branch);
 

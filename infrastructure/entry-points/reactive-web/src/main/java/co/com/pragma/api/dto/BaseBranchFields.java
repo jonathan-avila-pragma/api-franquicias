@@ -2,8 +2,11 @@ package co.com.pragma.api.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public abstract class BaseBranchFields {
     
     @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
@@ -17,28 +20,4 @@ public abstract class BaseBranchFields {
     @Size(max = 100, message = "City must not exceed 100 characters")
     @Pattern(regexp = "^[a-zA-Z\\s.-]*$", message = "City contains invalid characters")
     protected String city;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
 }

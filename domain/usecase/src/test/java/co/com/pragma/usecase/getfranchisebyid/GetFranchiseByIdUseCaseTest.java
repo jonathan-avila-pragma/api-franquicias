@@ -31,7 +31,7 @@ class GetFranchiseByIdUseCaseTest {
 
     @Test
     void execute_Success() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
 
