@@ -46,7 +46,7 @@ class ProductRepositoryTest {
     @Test
     void testSave() {
         Product product = new Product("1", "Product 1", 10);
-        ProductEntity entity = new ProductEntity("franchise1", "branch1", "1", "Product 1", 10);
+        ProductEntity entity = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
 
         when(mongoTemplate.save(any(ProductEntity.class))).thenReturn(Mono.just(entity));
 
@@ -61,7 +61,7 @@ class ProductRepositoryTest {
 
     @Test
     void testFindById() {
-        ProductEntity entity = new ProductEntity("franchise1", "branch1", "1", "Product 1", 10);
+        ProductEntity entity = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
 
         when(mongoTemplate.findOne(any(Query.class), eq(ProductEntity.class))).thenReturn(Mono.just(entity));
 
@@ -86,7 +86,7 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByName() {
-        ProductEntity entity = new ProductEntity("franchise1", "branch1", "1", "Product 1", 10);
+        ProductEntity entity = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
 
         when(mongoTemplate.findOne(any(Query.class), eq(ProductEntity.class))).thenReturn(Mono.just(entity));
 
@@ -122,8 +122,8 @@ class ProductRepositoryTest {
     @Test
     void testUpdate() {
         Product product = new Product("1", "Updated Product", 20);
-        ProductEntity existingEntity = new ProductEntity("franchise1", "branch1", "1", "Product 1", 10);
-        ProductEntity updatedEntity = new ProductEntity("franchise1", "branch1", "1", "Updated Product", 20);
+        ProductEntity existingEntity = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
+        ProductEntity updatedEntity = new ProductEntity("1", "franchise1", "branch1", "Updated Product", 20);
 
         when(mongoTemplate.findOne(any(Query.class), eq(ProductEntity.class)))
                 .thenReturn(Mono.just(existingEntity));
@@ -154,13 +154,13 @@ class ProductRepositoryTest {
 
     @Test
     void testFindMaxStockProductsByFranchise() {
-        ProductEntity product1 = new ProductEntity("franchise1", "branch1", "1", "Product 1", 50);
-        ProductEntity product2 = new ProductEntity("franchise1", "branch1", "2", "Product 2", 30);
-        ProductEntity product3 = new ProductEntity("franchise1", "branch2", "3", "Product 3", 100);
-        ProductEntity product4 = new ProductEntity("franchise1", "branch2", "4", "Product 4", 80);
+        ProductEntity product1 = new ProductEntity("1", "franchise1", "branch1", "Product 1", 50);
+        ProductEntity product2 = new ProductEntity("2", "franchise1", "branch1", "Product 2", 30);
+        ProductEntity product3 = new ProductEntity("3", "franchise1", "branch2", "Product 3", 100);
+        ProductEntity product4 = new ProductEntity("4", "franchise1", "branch2", "Product 4", 80);
 
-        Branch branch1 = new Branch("branch1", "Branch 1", "Address 1", "City 1");
-        Branch branch2 = new Branch("branch2", "Branch 2", "Address 2", "City 2");
+        Branch branch1 = Branch.builder().id("branch1").name("Branch 1").address("Address 1").city("City 1").build();
+        Branch branch2 = Branch.builder().id("branch2").name("Branch 2").address("Address 2").city("City 2").build();
 
         when(branchGateway.findAllByFranchiseId("franchise1"))
                 .thenReturn(Flux.just(branch1, branch2));

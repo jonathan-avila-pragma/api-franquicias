@@ -63,7 +63,7 @@ class UpdateBranchNameUseCaseTest {
 
     @Test
     void testExecuteBranchNotFound() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "999")).thenReturn(Mono.empty());
 
@@ -79,9 +79,9 @@ class UpdateBranchNameUseCaseTest {
 
     @Test
     void testExecuteSuccess() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
-        Branch branch = new Branch("1", "Old Name", "Address", "City");
-        Branch updatedBranch = new Branch("1", "New Name", "Address", "City");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
+        Branch branch = Branch.builder().id("1").name("Old Name").address("Address").city("City").build();
+        Branch updatedBranch = Branch.builder().id("1").name("New Name").address("Address").city("City").build();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "1")).thenReturn(Mono.just(branch));

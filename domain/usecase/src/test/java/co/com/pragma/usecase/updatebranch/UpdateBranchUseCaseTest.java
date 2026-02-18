@@ -33,13 +33,13 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_UpdateAllFields() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setName("New Name");
         branchUpdate.setAddress("New Address");
         branchUpdate.setCity("New City");
-        Branch updatedBranch = new Branch("1", "New Name", "New Address", "New City");
+        Branch updatedBranch = Branch.builder().id("1").name("New Name").address("New Address").city("New City").build();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(branchGateway.findById("1", "1")).thenReturn(Mono.just(existingBranch));
@@ -56,8 +56,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_UpdateOnlyName() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setName("New Name");
 
@@ -80,8 +80,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_UpdateOnlyAddress() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setAddress("New Address");
 
@@ -104,8 +104,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_UpdateOnlyCity() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setCity("New City");
 
@@ -128,8 +128,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_TrimWhitespace() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setName("  New Name  ");
         branchUpdate.setAddress("  New Address  ");
@@ -154,8 +154,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_IgnoreEmptyName() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setName("   ");
 
@@ -174,8 +174,8 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_NoFieldsToUpdate() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
-        Branch existingBranch = new Branch("1", "Old Name", "Old Address", "Old City");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
+        Branch existingBranch = Branch.builder().id("1").name("Old Name").address("Old Address").city("Old City").build();
         Branch branchUpdate = new Branch();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
@@ -213,7 +213,7 @@ class UpdateBranchUseCaseTest {
 
     @Test
     void execute_BranchNotFound() {
-        Franchise franchise = new Franchise("1", "Test Franchise");
+        Franchise franchise = Franchise.builder().id("1").name("Test Franchise").build();
         Branch branchUpdate = new Branch();
         branchUpdate.setName("New Name");
 

@@ -445,7 +445,7 @@ public class RouterRest {
                         .andRoute(DELETE(Constants.PATH_PRODUCT_ID), handler::deleteProduct)
                         .andRoute(PUT(Constants.PATH_STOCK), handler::updateProductStock)
                         .andRoute(GET(Constants.PATH_MAX_STOCK), handler::getMaxStockProducts)
-                        .andRoute(PUT(Constants.PATH_ID), handler::updateFranchiseName)
+                        .andRoute(PUT(Constants.PATH_FRANCHISE_ID), handler::updateFranchiseName)
                         .andRoute(PUT(Constants.PATH_BRANCH_ID), handler::updateBranch)
                         .andRoute(PUT(Constants.PATH_PRODUCT_ID), handler::updateProductName)
                         .andRoute(GET(Constants.PATH_PRODUCT_BY_NAME), handler::getProductByName));

@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -39,7 +40,7 @@ public class ProductRepository implements ProductGateway {
 
     @Override
     public Mono<Product> save(String franchiseId, String branchId, Product product) {
-        ProductEntity entity = new ProductEntity(franchiseId, branchId, product.getId(), product.getName(), product.getStock());
+        ProductEntity entity = new ProductEntity(product.getId(), franchiseId, branchId, product.getName(), product.getStock());
         return mongoTemplate.save(entity)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(e -> {
@@ -116,11 +117,15 @@ public class ProductRepository implements ProductGateway {
                                 return product;
                             })
                             .collectList()
-                            .map(products -> products.stream()
-                                    .max(Comparator.comparing(Product::getStock))
-                                    .map(product -> new ProductWithBranch(product, branch))
-                                    .orElse(null))
-                            .filter(Objects::nonNull);
+                            .flatMap(products -> {
+                                Optional<Product> maxProduct = products.stream()
+                                        .max(Comparator.comparing(Product::getStock));
+                                if (maxProduct.isPresent()) {
+                                    return Mono.just(new ProductWithBranch(maxProduct.get(), branch));
+                                } else {
+                                    return Mono.empty();
+                                }
+                            });
                 })
                 .doOnError(error -> log.error("Error finding max stock products with circuit breaker: {}", error.getMessage()));
     }

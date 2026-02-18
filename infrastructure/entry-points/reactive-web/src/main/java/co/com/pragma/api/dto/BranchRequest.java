@@ -1,16 +1,20 @@
 package co.com.pragma.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class BranchRequest extends BaseBranchFields {
     
     @NotBlank(message = "Name is required")
     @Override
     public String getName() {
         return super.getName();
-    }
-
-    public BranchRequest() {
     }
 
     public BranchRequest(String name) {

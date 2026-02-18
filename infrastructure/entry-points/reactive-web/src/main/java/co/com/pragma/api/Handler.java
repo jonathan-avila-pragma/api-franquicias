@@ -69,9 +69,10 @@ public class Handler {
                     log.info("Creating franchise with name: {}", sanitizedName);
                 })
                 .flatMap(franchiseRequest -> {
-                    Franchise franchise = new Franchise();
-                    franchise.setName(franchiseRequest.getName());
-                    franchise.setDescription(franchiseRequest.getDescription());
+                    Franchise franchise = Franchise.builder()
+                            .name(franchiseRequest.getName())
+                            .description(franchiseRequest.getDescription())
+                            .build();
                     return createFranchiseUseCase.execute(franchise)
                             .doOnNext(f -> log.info("Franchise created successfully with ID: {}", f.getId()))
                             .doOnError(e -> log.error("Error creating franchise: {}", e.getMessage()));
@@ -110,10 +111,11 @@ public class Handler {
                     branchRequest.setName(sanitizedName);
                 })
                 .flatMap(branchRequest -> {
-                    Branch branch = new Branch();
-                    branch.setName(branchRequest.getName());
-                    branch.setAddress(branchRequest.getAddress());
-                    branch.setCity(branchRequest.getCity());
+                    Branch branch = Branch.builder()
+                            .name(branchRequest.getName())
+                            .address(branchRequest.getAddress())
+                            .city(branchRequest.getCity())
+                            .build();
                     return addBranchUseCase.execute(franchiseId, branch);
                 })
                 .map(branch -> ResponseUtil.responseSuccessful(branch, BusinessCode.S201000))
@@ -230,6 +232,11 @@ public class Handler {
     public Mono<ServerResponse> getAllFranchises(ServerRequest request) {
         log.info("Received GET request to get all franchises");
         return getAllFranchisesUseCase.execute()
+                .map(franchise -> FranchiseSummaryDto.builder()
+                        .id(franchise.getId())
+                        .name(franchise.getName())
+                        .description(franchise.getDescription())
+                        .build())
                 .collectList()
                 .doOnNext(franchises -> log.info("Retrieved {} franchises", franchises.size()))
                 .map(franchises -> ResponseUtil.responseSuccessful(franchises, BusinessCode.S200000))
@@ -361,7 +368,12 @@ public class Handler {
         log.info("Received GET request to get franchise by ID: {}", franchiseId);
         return getFranchiseByIdUseCase.execute(franchiseId)
                 .doOnNext(franchise -> log.info("Franchise found: {}", franchise.getId()))
-                .map(franchise -> ResponseUtil.responseSuccessful(franchise, BusinessCode.S200000))
+                .map(franchise -> FranchiseSummaryDto.builder()
+                        .id(franchise.getId())
+                        .name(franchise.getName())
+                        .description(franchise.getDescription())
+                        .build())
+                .map(franchiseDto -> ResponseUtil.responseSuccessful(franchiseDto, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
                         .ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -464,10 +476,10 @@ public class Handler {
     }
 
     private Branch mapToBranch(UpdateBranchRequest request) {
-        Branch branch = new Branch();
-        branch.setName(request.getName());
-        branch.setAddress(request.getAddress());
-        branch.setCity(request.getCity());
-        return branch;
+        return Branch.builder()
+                .name(request.getName())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .build();
     }
 }
