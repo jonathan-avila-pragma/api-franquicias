@@ -30,32 +30,22 @@ public class FranchiseRepository implements FranchiseGateway {
         FranchiseEntity entity = new FranchiseEntity(franchise.getId(), franchise.getName(), franchise.getDescription());
         return mongoTemplate.save(entity)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(e -> {
-                    Franchise f = new Franchise();
-                    f.setId(e.getId());
-                    f.setName(e.getName());
-                    f.setDescription(e.getDescription());
-                    if (f.getBranches() == null) {
-                        f.setBranches(new java.util.ArrayList<>());
-                    }
-                    return f;
-                });
+                .map(e -> Franchise.builder()
+                        .id(e.getId())
+                        .name(e.getName())
+                        .description(e.getDescription())
+                        .build());
     }
 
     @Override
     public Mono<Franchise> findById(String id) {
         return mongoTemplate.findById(id, FranchiseEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(entity -> {
-                    Franchise franchise = new Franchise();
-                    franchise.setId(entity.getId());
-                    franchise.setName(entity.getName());
-                    franchise.setDescription(entity.getDescription());
-                    if (franchise.getBranches() == null) {
-                        franchise.setBranches(new java.util.ArrayList<>());
-                    }
-                    return franchise;
-                });
+                .map(entity -> Franchise.builder()
+                        .id(entity.getId())
+                        .name(entity.getName())
+                        .description(entity.getDescription())
+                        .build());
     }
 
     @Override
@@ -77,16 +67,11 @@ public class FranchiseRepository implements FranchiseGateway {
     public Flux<Franchise> findAll() {
         return mongoTemplate.findAll(FranchiseEntity.class)
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .map(entity -> {
-                    Franchise franchise = new Franchise();
-                    franchise.setId(entity.getId());
-                    franchise.setName(entity.getName());
-                    franchise.setDescription(entity.getDescription());
-                    if (franchise.getBranches() == null) {
-                        franchise.setBranches(new java.util.ArrayList<>());
-                    }
-                    return franchise;
-                });
+                .map(entity -> Franchise.builder()
+                        .id(entity.getId())
+                        .name(entity.getName())
+                        .description(entity.getDescription())
+                        .build());
     }
 
     @Override

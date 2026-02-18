@@ -72,6 +72,7 @@ api-franquicias/
 
 ### Productos
 
+- `GET /api/franchises/{franchiseId}/branches/{branchId}/products` - Obtener todos los productos de una sucursal
 - `GET /api/franchises/{franchiseId}/branches/{branchId}/products/name/{productName}` - Obtener un producto por nombre
 - `POST /api/franchises/{franchiseId}/branches/{branchId}/products` - Agregar un producto a una sucursal
 - `DELETE /api/franchises/{franchiseId}/branches/{branchId}/products/{productId}` - Eliminar un producto
@@ -482,6 +483,45 @@ curl -X POST http://localhost:8080/api/franchises/{franchiseId}/branches/{branch
     "name": "Producto 1",
     "stock": 100
   },
+  "errors": null
+}
+```
+
+### Obtener Productos de una Sucursal
+
+```bash
+curl -X GET http://localhost:8080/api/franchises/1/branches/1/products
+```
+
+**Respuesta exitosa (200 OK):**
+```json
+{
+  "code": "S200000",
+  "title": "Successfully",
+  "message": "Operación exitosa",
+  "data": [
+    {
+      "id": "1",
+      "name": "Producto 1",
+      "stock": 100
+    },
+    {
+      "id": "2",
+      "name": "Producto 2",
+      "stock": 50
+    }
+  ],
+  "errors": null
+}
+```
+
+**Respuesta cuando no hay productos (200 OK):**
+```json
+{
+  "code": "S200000",
+  "title": "Successfully",
+  "message": "Operación exitosa",
+  "data": [],
   "errors": null
 }
 ```

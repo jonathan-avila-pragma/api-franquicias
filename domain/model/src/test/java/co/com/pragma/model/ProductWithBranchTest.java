@@ -16,7 +16,12 @@ class ProductWithBranchTest {
     @Test
     void testConstructorWithParameters() {
         Product product = new Product("1", "Product 1", 10);
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch 1")
+                .address("Address")
+                .city("City")
+                .build();
         
         ProductWithBranch productWithBranch = new ProductWithBranch(product, branch);
         
@@ -30,7 +35,12 @@ class ProductWithBranchTest {
     void testSettersAndGetters() {
         ProductWithBranch productWithBranch = new ProductWithBranch();
         Product product = new Product("1", "Product 1", 10);
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch 1")
+                .address("Address")
+                .city("City")
+                .build();
         
         productWithBranch.setProduct(product);
         productWithBranch.setBranch(branch);

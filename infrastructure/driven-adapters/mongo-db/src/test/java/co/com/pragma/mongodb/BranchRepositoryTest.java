@@ -40,7 +40,7 @@ class BranchRepositoryTest {
 
     @Test
     void testSave() {
-        Branch branch = new Branch("1", "Branch 1", "Address", "City");
+        Branch branch = Branch.builder().id("1").name("Branch 1").address("Address").city("City").build();
         BranchEntity entity = new BranchEntity("1", "franchise1", "Branch 1", "Address", "City");
         
         when(mongoTemplate.save(any(BranchEntity.class))).thenReturn(Mono.just(entity));
@@ -95,7 +95,7 @@ class BranchRepositoryTest {
 
     @Test
     void testUpdate() {
-        Branch branch = new Branch("1", "Updated Branch", "New Address", "New City");
+        Branch branch = Branch.builder().id("1").name("Updated Branch").address("New Address").city("New City").build();
         BranchEntity existingEntity = new BranchEntity("1", "franchise1", "Branch 1", "Address", "City");
         BranchEntity updatedEntity = new BranchEntity("1", "franchise1", "Updated Branch", "New Address", "New City");
         
@@ -114,7 +114,7 @@ class BranchRepositoryTest {
 
     @Test
     void testUpdateNotFound() {
-        Branch branch = new Branch("999", "Updated Branch", "Address", "City");
+        Branch branch = Branch.builder().id("999").name("Updated Branch").address("Address").city("City").build();
         
         when(mongoTemplate.findOne(any(Query.class), eq(BranchEntity.class))).thenReturn(Mono.empty());
 

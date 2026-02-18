@@ -22,6 +22,7 @@ import co.com.pragma.usecase.updateproductname.UpdateProductNameUseCase;
 import co.com.pragma.usecase.getfranchisebyid.GetFranchiseByIdUseCase;
 import co.com.pragma.usecase.getbranchbyid.GetBranchByIdUseCase;
 import co.com.pragma.usecase.getproductbyname.GetProductByNameUseCase;
+import co.com.pragma.usecase.getproductsbybranch.GetProductsByBranchUseCase;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class Handler {
     private final GetFranchiseByIdUseCase getFranchiseByIdUseCase;
     private final GetBranchByIdUseCase getBranchByIdUseCase;
     private final GetProductByNameUseCase getProductByNameUseCase;
+    private final GetProductsByBranchUseCase getProductsByBranchUseCase;
     private final ValidationHelper validationHelper;
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
@@ -69,9 +71,10 @@ public class Handler {
                     log.info("Creating franchise with name: {}", sanitizedName);
                 })
                 .flatMap(franchiseRequest -> {
-                    Franchise franchise = new Franchise();
-                    franchise.setName(franchiseRequest.getName());
-                    franchise.setDescription(franchiseRequest.getDescription());
+                    Franchise franchise = Franchise.builder()
+                            .name(franchiseRequest.getName())
+                            .description(franchiseRequest.getDescription())
+                            .build();
                     return createFranchiseUseCase.execute(franchise)
                             .doOnNext(f -> log.info("Franchise created successfully with ID: {}", f.getId()))
                             .doOnError(e -> log.error("Error creating franchise: {}", e.getMessage()));
@@ -110,10 +113,11 @@ public class Handler {
                     branchRequest.setName(sanitizedName);
                 })
                 .flatMap(branchRequest -> {
-                    Branch branch = new Branch();
-                    branch.setName(branchRequest.getName());
-                    branch.setAddress(branchRequest.getAddress());
-                    branch.setCity(branchRequest.getCity());
+                    Branch branch = Branch.builder()
+                            .name(branchRequest.getName())
+                            .address(branchRequest.getAddress())
+                            .city(branchRequest.getCity())
+                            .build();
                     return addBranchUseCase.execute(franchiseId, branch);
                 })
                 .map(branch -> ResponseUtil.responseSuccessful(branch, BusinessCode.S201000))
@@ -210,6 +214,15 @@ public class Handler {
     public Mono<ServerResponse> getMaxStockProducts(ServerRequest request) {
         String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         return getMaxStockProductsUseCase.execute(franchiseId)
+                .map(pwb -> ProductWithBranchDto.builder()
+                        .product(pwb.getProduct())
+                        .branch(BranchSummaryDto.builder()
+                                .id(pwb.getBranch().getId())
+                                .name(pwb.getBranch().getName())
+                                .address(pwb.getBranch().getAddress())
+                                .city(pwb.getBranch().getCity())
+                                .build())
+                        .build())
                 .collectList()
                 .map(products -> ResponseUtil.responseSuccessful(products, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
@@ -230,6 +243,11 @@ public class Handler {
     public Mono<ServerResponse> getAllFranchises(ServerRequest request) {
         log.info("Received GET request to get all franchises");
         return getAllFranchisesUseCase.execute()
+                .map(franchise -> FranchiseSummaryDto.builder()
+                        .id(franchise.getId())
+                        .name(franchise.getName())
+                        .description(franchise.getDescription())
+                        .build())
                 .collectList()
                 .doOnNext(franchises -> log.info("Retrieved {} franchises", franchises.size()))
                 .map(franchises -> ResponseUtil.responseSuccessful(franchises, BusinessCode.S200000))
@@ -361,7 +379,12 @@ public class Handler {
         log.info("Received GET request to get franchise by ID: {}", franchiseId);
         return getFranchiseByIdUseCase.execute(franchiseId)
                 .doOnNext(franchise -> log.info("Franchise found: {}", franchise.getId()))
-                .map(franchise -> ResponseUtil.responseSuccessful(franchise, BusinessCode.S200000))
+                .map(franchise -> FranchiseSummaryDto.builder()
+                        .id(franchise.getId())
+                        .name(franchise.getName())
+                        .description(franchise.getDescription())
+                        .build())
+                .map(franchiseDto -> ResponseUtil.responseSuccessful(franchiseDto, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
                         .ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -387,7 +410,13 @@ public class Handler {
         log.info("Received GET request to get branch by ID: {} for franchise: {}", branchId, franchiseId);
         return getBranchByIdUseCase.execute(franchiseId, branchId)
                 .doOnNext(branch -> log.info("Branch found: {}", branch.getId()))
-                .map(branch -> ResponseUtil.responseSuccessful(branch, BusinessCode.S200000))
+                .map(branch -> BranchSummaryDto.builder()
+                        .id(branch.getId())
+                        .name(branch.getName())
+                        .address(branch.getAddress())
+                        .city(branch.getCity())
+                        .build())
+                .map(branchSummary -> ResponseUtil.responseSuccessful(branchSummary, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
                         .ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -401,6 +430,33 @@ public class Handler {
                 })
                 .onErrorResume(e -> {
                     log.error("Error getting branch by ID", e);
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(ResponseUtil.responseError(BusinessCode.E500000));
+                });
+    }
+
+    public Mono<ServerResponse> getProductsByBranch(ServerRequest request) {
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        log.info("Received GET request to get products for branch: {} in franchise: {}", branchId, franchiseId);
+        return getProductsByBranchUseCase.execute(franchiseId, branchId)
+                .collectList()
+                .doOnNext(products -> log.info("Found {} products for branch: {}", products.size(), branchId))
+                .map(products -> ResponseUtil.responseSuccessful(products, BusinessCode.S200000))
+                .flatMap(response -> ServerResponse
+                        .ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(response))
+                .onErrorResume(CallNotPermittedException.class, e -> handleCircuitBreakerOpen())
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    log.error("Branch not found: {} for franchise: {}", branchId, franchiseId);
+                    return ServerResponse.status(HttpStatus.NOT_FOUND)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(ResponseUtil.responseError(BusinessCode.B404000, e.getMessage()));
+                })
+                .onErrorResume(e -> {
+                    log.error("Error getting products by branch", e);
                     return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(ResponseUtil.responseError(BusinessCode.E500000));
@@ -464,10 +520,10 @@ public class Handler {
     }
 
     private Branch mapToBranch(UpdateBranchRequest request) {
-        Branch branch = new Branch();
-        branch.setName(request.getName());
-        branch.setAddress(request.getAddress());
-        branch.setCity(request.getCity());
-        return branch;
+        return Branch.builder()
+                .name(request.getName())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .build();
     }
 }

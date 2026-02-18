@@ -22,8 +22,11 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithIdAndName() {
-        Branch branch = new Branch("1", "Branch Name");
+    void testBuilderWithIdAndName() {
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
@@ -34,8 +37,13 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithIdNameAddressCity() {
-        Branch branch = new Branch("1", "Branch Name", "Address 123", "City");
+    void testBuilderWithIdNameAddressCity() {
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .address("Address 123")
+                .city("City")
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
@@ -46,11 +54,15 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithIdNameAndProducts() {
+    void testBuilderWithIdNameAndProducts() {
         List<Product> products = new ArrayList<>();
         products.add(new Product("1", "Product 1", 10));
         
-        Branch branch = new Branch("1", "Branch Name", products);
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .products(products)
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
@@ -62,8 +74,11 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithIdNameAndNullProducts() {
-        Branch branch = new Branch("1", "Branch Name", null);
+    void testBuilderWithIdNameAndNullProducts() {
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
@@ -72,11 +87,17 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithAllFields() {
+    void testBuilderWithAllFields() {
         List<Product> products = new ArrayList<>();
         products.add(new Product("1", "Product 1", 10));
         
-        Branch branch = new Branch("1", "Branch Name", "Address 123", "City", products);
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .address("Address 123")
+                .city("City")
+                .products(products)
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
@@ -87,13 +108,22 @@ class BranchTest {
     }
 
     @Test
-    void testConstructorWithAllFieldsAndNullProducts() {
-        Branch branch = new Branch("1", "Branch Name", "Address 123", "City", null);
+    void testBuilderWithAllFieldsAndNullProducts() {
+        Branch branch = Branch.builder()
+                .id("1")
+                .name("Branch Name")
+                .address("Address 123")
+                .city("City")
+                .build();
         
         assertEquals("1", branch.getId());
         assertEquals("Branch Name", branch.getName());
         assertEquals("Address 123", branch.getAddress());
         assertEquals("City", branch.getCity());
+        assertNotNull(branch.getProducts());
+        assertTrue(branch.getProducts().isEmpty());
+        
+        branch.setProducts(null);
         assertNotNull(branch.getProducts());
         assertTrue(branch.getProducts().isEmpty());
     }

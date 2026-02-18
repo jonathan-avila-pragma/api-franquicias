@@ -2,7 +2,6 @@ apply plugin: 'info.solidsoft.pitest.aggregator'
 
 allprojects {
     repositories {
-        //mavenLocal()
         mavenCentral()
     }
 }
@@ -16,8 +15,8 @@ subprojects {
     compileJava.dependsOn validateStructure
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     //build.dependsOn 'pitest'

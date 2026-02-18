@@ -12,5 +12,6 @@ public interface ProductGateway {
     Mono<Void> deleteById(String franchiseId, String branchId, String productId);
     Mono<Product> update(String franchiseId, String branchId, Product product);
     Flux<ProductWithBranch> findMaxStockProductsByFranchise(String franchiseId);
+    Flux<Product> findAllByBranch(String franchiseId, String branchId);
     Mono<String> getNextId();
 }

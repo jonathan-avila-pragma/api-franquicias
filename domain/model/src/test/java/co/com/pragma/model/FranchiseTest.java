@@ -21,8 +21,11 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithIdAndName() {
-        Franchise franchise = new Franchise("1", "Franchise Name");
+    void testBuilderWithIdAndName() {
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
@@ -32,8 +35,12 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithIdNameAndDescription() {
-        Franchise franchise = new Franchise("1", "Franchise Name", "Description");
+    void testBuilderWithIdNameAndDescription() {
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .description("Description")
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
@@ -43,11 +50,15 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithIdNameAndBranches() {
+    void testBuilderWithIdNameAndBranches() {
         List<Branch> branches = new ArrayList<>();
-        branches.add(new Branch("1", "Branch 1"));
+        branches.add(Branch.builder().id("1").name("Branch 1").build());
         
-        Franchise franchise = new Franchise("1", "Franchise Name", branches);
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .branches(branches)
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
@@ -57,8 +68,11 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithIdNameAndNullBranches() {
-        Franchise franchise = new Franchise("1", "Franchise Name", (List<Branch>) null);
+    void testBuilderWithIdNameAndNullBranches() {
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
@@ -67,11 +81,16 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithAllFields() {
+    void testBuilderWithAllFields() {
         List<Branch> branches = new ArrayList<>();
-        branches.add(new Branch("1", "Branch 1"));
+        branches.add(Branch.builder().id("1").name("Branch 1").build());
         
-        Franchise franchise = new Franchise("1", "Franchise Name", "Description", branches);
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .description("Description")
+                .branches(branches)
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
@@ -81,12 +100,20 @@ class FranchiseTest {
     }
 
     @Test
-    void testConstructorWithAllFieldsAndNullBranches() {
-        Franchise franchise = new Franchise("1", "Franchise Name", "Description", null);
+    void testBuilderWithAllFieldsAndNullBranches() {
+        Franchise franchise = Franchise.builder()
+                .id("1")
+                .name("Franchise Name")
+                .description("Description")
+                .build();
         
         assertEquals("1", franchise.getId());
         assertEquals("Franchise Name", franchise.getName());
         assertEquals("Description", franchise.getDescription());
+        assertNotNull(franchise.getBranches());
+        assertTrue(franchise.getBranches().isEmpty());
+        
+        franchise.setBranches(null);
         assertNotNull(franchise.getBranches());
         assertTrue(franchise.getBranches().isEmpty());
     }
@@ -95,7 +122,7 @@ class FranchiseTest {
     void testSettersAndGetters() {
         Franchise franchise = new Franchise();
         List<Branch> branches = new ArrayList<>();
-        branches.add(new Branch("1", "Branch 1"));
+        branches.add(Branch.builder().id("1").name("Branch 1").build());
         
         franchise.setId("2");
         franchise.setName("New Franchise");

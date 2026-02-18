@@ -3,14 +3,11 @@ server:
 spring:
   application:
     name: "ApiFranquicias"
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+    include: null
   devtools:
     add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: "/h2"
-  profiles:
-    include: null
   mongodb:
     embedded:
       version: null
