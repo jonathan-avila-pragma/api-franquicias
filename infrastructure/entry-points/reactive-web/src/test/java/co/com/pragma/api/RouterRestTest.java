@@ -15,6 +15,7 @@ import co.com.pragma.usecase.getallfranchises.GetAllFranchisesUseCase;
 import co.com.pragma.usecase.getfranchisebyid.GetFranchiseByIdUseCase;
 import co.com.pragma.usecase.getbranchbyid.GetBranchByIdUseCase;
 import co.com.pragma.usecase.getproductbyname.GetProductByNameUseCase;
+import co.com.pragma.usecase.getproductsbybranch.GetProductsByBranchUseCase;
 import co.com.pragma.usecase.updatebranchname.UpdateBranchNameUseCase;
 import co.com.pragma.usecase.updatebranch.UpdateBranchUseCase;
 import co.com.pragma.usecase.updatefranchisename.UpdateFranchiseNameUseCase;
@@ -84,6 +85,9 @@ class RouterRestTest {
     private GetProductByNameUseCase getProductByNameUseCase;
     
     @Mock
+    private GetProductsByBranchUseCase getProductsByBranchUseCase;
+    
+    @Mock
     private ValidationHelper validationHelper;
 
     @BeforeEach
@@ -115,6 +119,7 @@ class RouterRestTest {
                 getFranchiseByIdUseCase,
                 getBranchByIdUseCase,
                 getProductByNameUseCase,
+                getProductsByBranchUseCase,
                 validationHelper
         );
         RouterRest routerRest = new RouterRest();

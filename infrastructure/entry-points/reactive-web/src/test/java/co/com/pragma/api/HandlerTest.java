@@ -14,6 +14,7 @@ import co.com.pragma.usecase.getbranchbyid.GetBranchByIdUseCase;
 import co.com.pragma.usecase.getfranchisebyid.GetFranchiseByIdUseCase;
 import co.com.pragma.usecase.getmaxstockproducts.GetMaxStockProductsUseCase;
 import co.com.pragma.usecase.getproductbyname.GetProductByNameUseCase;
+import co.com.pragma.usecase.getproductsbybranch.GetProductsByBranchUseCase;
 import co.com.pragma.usecase.updatebranch.UpdateBranchUseCase;
 import co.com.pragma.usecase.updatebranchname.UpdateBranchNameUseCase;
 import co.com.pragma.usecase.updatefranchisename.UpdateFranchiseNameUseCase;
@@ -66,6 +67,8 @@ class HandlerTest {
     @Mock
     private GetProductByNameUseCase getProductByNameUseCase;
     @Mock
+    private GetProductsByBranchUseCase getProductsByBranchUseCase;
+    @Mock
     private ValidationHelper validationHelper;
     @Mock
     private ServerRequest serverRequest;
@@ -78,7 +81,7 @@ class HandlerTest {
                 deleteProductUseCase, updateProductStockUseCase, getMaxStockProductsUseCase,
                 getAllFranchisesUseCase, updateFranchiseNameUseCase, updateBranchNameUseCase,
                 updateBranchUseCase, updateProductNameUseCase, getFranchiseByIdUseCase,
-                getBranchByIdUseCase, getProductByNameUseCase, validationHelper);
+                getBranchByIdUseCase, getProductByNameUseCase, getProductsByBranchUseCase, validationHelper);
     }
 
     @Test
@@ -504,6 +507,51 @@ class HandlerTest {
                 .verifyComplete();
 
         verify(getProductByNameUseCase).execute("1", "1", "Test Product");
+    }
+
+    @Test
+    void getProductsByBranch_Success() {
+        Product product1 = new Product("1", "Product 1", 10);
+        Product product2 = new Product("2", "Product 2", 20);
+
+        when(serverRequest.pathVariable("franchiseId")).thenReturn("1");
+        when(serverRequest.pathVariable("branchId")).thenReturn("1");
+        when(getProductsByBranchUseCase.execute(anyString(), anyString()))
+                .thenReturn(Flux.just(product1, product2));
+
+        StepVerifier.create(handler.getProductsByBranch(serverRequest))
+                .expectNextMatches(response -> response.statusCode() == HttpStatus.OK)
+                .verifyComplete();
+
+        verify(getProductsByBranchUseCase).execute("1", "1");
+    }
+
+    @Test
+    void getProductsByBranch_Empty() {
+        when(serverRequest.pathVariable("franchiseId")).thenReturn("1");
+        when(serverRequest.pathVariable("branchId")).thenReturn("1");
+        when(getProductsByBranchUseCase.execute(anyString(), anyString()))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(handler.getProductsByBranch(serverRequest))
+                .expectNextMatches(response -> response.statusCode() == HttpStatus.OK)
+                .verifyComplete();
+
+        verify(getProductsByBranchUseCase).execute("1", "1");
+    }
+
+    @Test
+    void getProductsByBranch_BranchNotFound() {
+        when(serverRequest.pathVariable("franchiseId")).thenReturn("1");
+        when(serverRequest.pathVariable("branchId")).thenReturn("1");
+        when(getProductsByBranchUseCase.execute(anyString(), anyString()))
+                .thenReturn(Flux.error(new IllegalArgumentException("Branch not found")));
+
+        StepVerifier.create(handler.getProductsByBranch(serverRequest))
+                .expectNextMatches(response -> response.statusCode() == HttpStatus.NOT_FOUND)
+                .verifyComplete();
+
+        verify(getProductsByBranchUseCase).execute("1", "1");
     }
 
     @Test

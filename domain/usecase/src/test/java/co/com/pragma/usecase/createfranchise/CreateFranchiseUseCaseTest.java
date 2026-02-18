@@ -57,8 +57,8 @@ class CreateFranchiseUseCaseTest {
 
     @Test
     void testExecuteWithIdProvided() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
-        Franchise savedFranchise = new Franchise("1", "Franchise 1", "Description");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
+        Franchise savedFranchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
 
         when(franchiseGateway.save(any(Franchise.class))).thenReturn(Mono.just(savedFranchise));
 
@@ -77,7 +77,7 @@ class CreateFranchiseUseCaseTest {
         franchise.setName("Franchise 1");
         franchise.setDescription("Description");
 
-        Franchise savedFranchise = new Franchise("2", "Franchise 1", "Description");
+        Franchise savedFranchise = Franchise.builder().id("2").name("Franchise 1").description("Description").build();
 
         when(franchiseGateway.getNextId()).thenReturn(Mono.just("2"));
         when(franchiseGateway.save(any(Franchise.class))).thenReturn(Mono.just(savedFranchise));
@@ -97,7 +97,7 @@ class CreateFranchiseUseCaseTest {
         franchise.setName("Franchise 1");
         franchise.setDescription("Description");
 
-        Franchise savedFranchise = new Franchise("3", "Franchise 1", "Description");
+        Franchise savedFranchise = Franchise.builder().id("3").name("Franchise 1").description("Description").build();
 
         when(franchiseGateway.getNextId()).thenReturn(Mono.just("3"));
         when(franchiseGateway.save(any(Franchise.class))).thenReturn(Mono.just(savedFranchise));

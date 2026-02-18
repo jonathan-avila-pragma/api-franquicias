@@ -5,10 +5,12 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class FranchiseRequest {
     
@@ -21,11 +23,7 @@ public class FranchiseRequest {
     @Pattern(regexp = "^[a-zA-Z0-9\\s.,;:_-]*$", message = "Description contains invalid characters")
     private String description;
 
-    public FranchiseRequest() {
-    }
-
     public FranchiseRequest(String name) {
         this.name = name;
     }
-
 }

@@ -99,11 +99,12 @@ public class BranchRepository implements BranchGateway {
     }
 
     private Branch mapToBranch(BranchEntity entity) {
-        Branch branch = new Branch();
-        branch.setId(entity.getId());
-        branch.setName(entity.getName());
-        branch.setAddress(entity.getAddress());
-        branch.setCity(entity.getCity());
+        Branch branch = Branch.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .address(entity.getAddress())
+                .city(entity.getCity())
+                .build();
         initializeProductsIfNull(branch);
         return branch;
     }

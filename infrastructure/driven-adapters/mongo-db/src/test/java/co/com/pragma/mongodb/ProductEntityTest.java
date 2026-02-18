@@ -18,7 +18,7 @@ class ProductEntityTest {
 
     @Test
     void testConstructorWithParameters() {
-        ProductEntity entity = new ProductEntity("franchise1", "branch1", "1", "Product 1", 10);
+        ProductEntity entity = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
         
         assertEquals("1", entity.getId());
         assertEquals("franchise1", entity.getFranchiseId());

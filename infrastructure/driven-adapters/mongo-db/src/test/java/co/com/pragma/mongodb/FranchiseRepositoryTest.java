@@ -40,7 +40,7 @@ class FranchiseRepositoryTest {
 
     @Test
     void testSave() {
-        Franchise franchise = new Franchise("1", "Franchise 1", "Description");
+        Franchise franchise = Franchise.builder().id("1").name("Franchise 1").description("Description").build();
         FranchiseEntity entity = new FranchiseEntity("1", "Franchise 1", "Description");
         
         when(mongoTemplate.save(any(FranchiseEntity.class))).thenReturn(Mono.just(entity));
@@ -93,7 +93,7 @@ class FranchiseRepositoryTest {
 
     @Test
     void testUpdate() {
-        Franchise franchise = new Franchise("1", "Updated Franchise", "Updated Description");
+        Franchise franchise = Franchise.builder().id("1").name("Updated Franchise").description("Updated Description").build();
         FranchiseEntity existingEntity = new FranchiseEntity("1", "Franchise 1", "Description");
         FranchiseEntity updatedEntity = new FranchiseEntity("1", "Updated Franchise", "Updated Description");
         
@@ -112,7 +112,7 @@ class FranchiseRepositoryTest {
 
     @Test
     void testUpdateNotFound() {
-        Franchise franchise = new Franchise("999", "Updated Franchise", "Description");
+        Franchise franchise = Franchise.builder().id("999").name("Updated Franchise").description("Description").build();
         
         when(mongoTemplate.findById("999", FranchiseEntity.class)).thenReturn(Mono.empty());
 

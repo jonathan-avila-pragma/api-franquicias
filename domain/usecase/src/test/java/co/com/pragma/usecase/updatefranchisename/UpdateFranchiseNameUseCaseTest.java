@@ -58,8 +58,8 @@ class UpdateFranchiseNameUseCaseTest {
 
     @Test
     void testExecuteSuccess() {
-        Franchise franchise = new Franchise("1", "Old Name", "Description");
-        Franchise updatedFranchise = new Franchise("1", "New Name", "Description");
+        Franchise franchise = Franchise.builder().id("1").name("Old Name").description("Description").build();
+        Franchise updatedFranchise = Franchise.builder().id("1").name("New Name").description("Description").build();
 
         when(franchiseGateway.findById("1")).thenReturn(Mono.just(franchise));
         when(franchiseGateway.update(any(Franchise.class))).thenReturn(Mono.just(updatedFranchise));
