@@ -22,6 +22,7 @@ import co.com.pragma.usecase.updateproductname.UpdateProductNameUseCase;
 import co.com.pragma.usecase.getfranchisebyid.GetFranchiseByIdUseCase;
 import co.com.pragma.usecase.getbranchbyid.GetBranchByIdUseCase;
 import co.com.pragma.usecase.getproductbyname.GetProductByNameUseCase;
+import co.com.pragma.usecase.getproductsbybranch.GetProductsByBranchUseCase;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class Handler {
     private final GetFranchiseByIdUseCase getFranchiseByIdUseCase;
     private final GetBranchByIdUseCase getBranchByIdUseCase;
     private final GetProductByNameUseCase getProductByNameUseCase;
+    private final GetProductsByBranchUseCase getProductsByBranchUseCase;
     private final ValidationHelper validationHelper;
 
     public Mono<ServerResponse> createFranchise(ServerRequest request) {
@@ -212,6 +214,15 @@ public class Handler {
     public Mono<ServerResponse> getMaxStockProducts(ServerRequest request) {
         String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
         return getMaxStockProductsUseCase.execute(franchiseId)
+                .map(pwb -> ProductWithBranchDto.builder()
+                        .product(pwb.getProduct())
+                        .branch(BranchSummaryDto.builder()
+                                .id(pwb.getBranch().getId())
+                                .name(pwb.getBranch().getName())
+                                .address(pwb.getBranch().getAddress())
+                                .city(pwb.getBranch().getCity())
+                                .build())
+                        .build())
                 .collectList()
                 .map(products -> ResponseUtil.responseSuccessful(products, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
@@ -399,7 +410,13 @@ public class Handler {
         log.info("Received GET request to get branch by ID: {} for franchise: {}", branchId, franchiseId);
         return getBranchByIdUseCase.execute(franchiseId, branchId)
                 .doOnNext(branch -> log.info("Branch found: {}", branch.getId()))
-                .map(branch -> ResponseUtil.responseSuccessful(branch, BusinessCode.S200000))
+                .map(branch -> BranchSummaryDto.builder()
+                        .id(branch.getId())
+                        .name(branch.getName())
+                        .address(branch.getAddress())
+                        .city(branch.getCity())
+                        .build())
+                .map(branchSummary -> ResponseUtil.responseSuccessful(branchSummary, BusinessCode.S200000))
                 .flatMap(response -> ServerResponse
                         .ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -413,6 +430,33 @@ public class Handler {
                 })
                 .onErrorResume(e -> {
                     log.error("Error getting branch by ID", e);
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(ResponseUtil.responseError(BusinessCode.E500000));
+                });
+    }
+
+    public Mono<ServerResponse> getProductsByBranch(ServerRequest request) {
+        String franchiseId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_FRANCHISE_ID));
+        String branchId = InputSanitizer.validateAndSanitizeId(request.pathVariable(PATH_VAR_BRANCH_ID));
+        log.info("Received GET request to get products for branch: {} in franchise: {}", branchId, franchiseId);
+        return getProductsByBranchUseCase.execute(franchiseId, branchId)
+                .collectList()
+                .doOnNext(products -> log.info("Found {} products for branch: {}", products.size(), branchId))
+                .map(products -> ResponseUtil.responseSuccessful(products, BusinessCode.S200000))
+                .flatMap(response -> ServerResponse
+                        .ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(response))
+                .onErrorResume(CallNotPermittedException.class, e -> handleCircuitBreakerOpen())
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    log.error("Branch not found: {} for franchise: {}", branchId, franchiseId);
+                    return ServerResponse.status(HttpStatus.NOT_FOUND)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(ResponseUtil.responseError(BusinessCode.B404000, e.getMessage()));
+                })
+                .onErrorResume(e -> {
+                    log.error("Error getting products by branch", e);
                     return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
                             .contentType(MediaType.APPLICATION_JSON)
                             .bodyValue(ResponseUtil.responseError(BusinessCode.E500000));

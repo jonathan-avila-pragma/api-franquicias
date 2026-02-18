@@ -210,6 +210,38 @@ public class RouterRest {
             )
         ),
         @RouterOperation(
+            path = "/api/franchises/{franchiseId}/branches/{branchId}/products",
+            method = RequestMethod.GET,
+            beanClass = Handler.class,
+            beanMethod = "getProductsByBranch",
+                operation = @Operation(
+                operationId = "getProductsByBranch",
+                summary = "Get all products by branch",
+                tags = {"Products"},
+                parameters = {
+                    @Parameter(in = ParameterIn.PATH, name = "franchiseId", description = "Franchise ID"),
+                    @Parameter(in = ParameterIn.PATH, name = "branchId", description = "Branch ID")
+                },
+                responses = {
+                    @ApiResponse(
+                        responseCode = "200",
+                        description = "List of products",
+                        content = @Content(schema = @Schema(implementation = ProductListResponseDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "404",
+                        description = "Branch not found",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    ),
+                    @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = @Content(schema = @Schema(implementation = ResponseErrorDto.class))
+                    )
+                }
+            )
+        ),
+        @RouterOperation(
             path = "/api/franchises/{franchiseId}/branches/{branchId}/products/{productId}",
             method = RequestMethod.DELETE,
             beanClass = Handler.class,
@@ -441,6 +473,7 @@ public class RouterRest {
                         .andRoute(GET(Constants.PATH_FRANCHISE_ID), handler::getFranchiseById)
                         .andRoute(POST(Constants.PATH_BRANCHES), handler::addBranch)
                         .andRoute(GET(Constants.PATH_BRANCH_ID), handler::getBranchById)
+                        .andRoute(GET(Constants.PATH_PRODUCTS), handler::getProductsByBranch)
                         .andRoute(POST(Constants.PATH_PRODUCTS), handler::addProduct)
                         .andRoute(DELETE(Constants.PATH_PRODUCT_ID), handler::deleteProduct)
                         .andRoute(PUT(Constants.PATH_STOCK), handler::updateProductStock)

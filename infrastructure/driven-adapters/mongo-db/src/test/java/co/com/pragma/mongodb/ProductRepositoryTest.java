@@ -181,6 +181,36 @@ class ProductRepositoryTest {
         verify(mongoTemplate, atLeastOnce()).find(any(Query.class), eq(ProductEntity.class));
     }
 
+    @Test
+    void testFindAllByBranch() {
+        ProductEntity product1 = new ProductEntity("1", "franchise1", "branch1", "Product 1", 10);
+        ProductEntity product2 = new ProductEntity("2", "franchise1", "branch1", "Product 2", 20);
+
+        when(mongoTemplate.find(any(Query.class), eq(ProductEntity.class)))
+                .thenReturn(Flux.just(product1, product2));
+
+        StepVerifier.create(productRepository.findAllByBranch("franchise1", "branch1"))
+                .expectNextMatches(p -> p.getId().equals("1") 
+                        && p.getName().equals("Product 1")
+                        && p.getStock().equals(10))
+                .expectNextMatches(p -> p.getId().equals("2") 
+                        && p.getName().equals("Product 2")
+                        && p.getStock().equals(20))
+                .verifyComplete();
+
+        verify(mongoTemplate).find(any(Query.class), eq(ProductEntity.class));
+    }
+
+    @Test
+    void testFindAllByBranchEmpty() {
+        when(mongoTemplate.find(any(Query.class), eq(ProductEntity.class)))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(productRepository.findAllByBranch("franchise1", "branch1"))
+                .verifyComplete();
+
+        verify(mongoTemplate).find(any(Query.class), eq(ProductEntity.class));
+    }
 
     @Test
     void testGetNextId() {

@@ -131,6 +131,22 @@ public class ProductRepository implements ProductGateway {
     }
 
     @Override
+    public Flux<Product> findAllByBranch(String franchiseId, String branchId) {
+        Query query = new Query(Criteria.where(FIELD_FRANCHISE_ID).is(franchiseId)
+                .and(FIELD_BRANCH_ID).is(branchId));
+        return mongoTemplate.find(query, ProductEntity.class)
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
+                .map(entity -> {
+                    Product product = new Product();
+                    product.setId(entity.getId());
+                    product.setName(entity.getName());
+                    product.setStock(entity.getStock());
+                    return product;
+                })
+                .doOnError(error -> log.error("Error finding products by branch with circuit breaker: {}", error.getMessage()));
+    }
+
+    @Override
     public Mono<String> getNextId() {
         log.info("Getting next product ID - Thread: {}", Thread.currentThread().getName());
         String sequenceName = "product_sequence";
