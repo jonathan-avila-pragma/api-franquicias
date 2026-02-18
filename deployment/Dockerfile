@@ -1,7 +1,17 @@
-FROM eclipse-temurin:25-jdk-alpine
-VOLUME /tmp
-COPY *.jar ApiFranquicias.jar
-ENV JAVA_OPTS=" -Xshareclasses:name=cacheapp,cacheDir=/cache,nonfatal -XX:+UseContainerSupport -XX:MaxRAMPercentage=70 -Djava.security.egd=file:/dev/./urandom"
-# Replace with a non-root user to avoid running the container with excessive privileges
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Crear usuario no root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copiar el JAR desde la ruta donde se genera en el proyecto
+# Este Dockerfile debe construirse desde la raíz del proyecto (api-franquicias)
+# Ejemplo: docker build -f deployment/Dockerfile -t franchise-api .
+COPY applications/app-service/build/libs/*.jar app.jar
+
 USER appuser
-ENTRYPOINT [ "/bin/sh", "-c", "/opt/java/openjdk/bin/java $JAVA_OPTS  -jar /ApiFranquicias.jar" ]
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]
