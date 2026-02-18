@@ -117,25 +117,10 @@ export MONGODB_DATABASE=api-franquicias
 Crea un archivo `.env` en la raíz del proyecto con:
 
 ```env
-MONGODB_HOST=pruebas.kuhx1fs.mongodb.net
+MONGODB_HOST=tu_host_mongodb
 MONGODB_USERNAME=tu_usuario
 MONGODB_PASSWORD=tu_contraseña
 MONGODB_DATABASE=api-franquicias
-```
-
-#### Opción 3: Valores por Defecto en application.yaml
-
-El archivo `application.yaml` contiene valores por defecto que se pueden sobrescribir con variables de entorno:
-
-```yaml
-spring:
-  data:
-    mongodb:
-      host: ${MONGODB_HOST:pruebas.kuhx1fs.mongodb.net}
-      username: ${MONGODB_USERNAME:jonathanavila83_db_user}
-      password: ${MONGODB_PASSWORD:oKHayRCVJG2YiFAh}
-      database: ${MONGODB_DATABASE:api-franquicias}
-      uri: mongodb+srv://${spring.data.mongodb.username}:${spring.data.mongodb.password}@${spring.data.mongodb.host}/${spring.data.mongodb.database}?retryWrites=true&w=majority
 ```
 
 #### Para MongoDB Local
