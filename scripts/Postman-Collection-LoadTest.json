@@ -1,58 +1,119 @@
 {
 	"info": {
-		"_postman_id": "load-test-franchises",
-		"name": "Load Test - Create Franchises",
-		"description": "Colección para pruebas de carga de creación de franquicias con nombres aleatorios",
+		"_postman_id": "load-test-franchises-complete",
+		"name": "Load Test - Complete Data Generation",
+		"description": "Colección para pruebas de carga: Crea 100 franquicias, cada una con 10-20 sucursales, y cada sucursal con 10+ productos con stock aleatorio entre 10-500.\n\nINSTRUCCIONES:\n1. Configura la variable 'baseUrl' con la URL de tu API\n2. Abre Collection Runner (Ctrl+Alt+R)\n3. Configura 100 iteraciones\n4. Ejecuta la colección\n\nLa colección creará automáticamente:\n- 100 franquicias\n- 10-20 sucursales por franquicia\n- 10+ productos por sucursal con stock aleatorio (10-500)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "franchiseIndex",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "branchIndex",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "productIndex",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "currentFranchiseId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "currentBranchId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "branchesToCreate",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "productsToCreate",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "productNamesPool",
+			"value": "[\"Laptop Dell XPS 13\",\"Mouse Logitech MX Master\",\"Teclado Mecánico RGB\",\"Monitor LG 27 pulgadas\",\"Auriculares Sony WH-1000XM4\",\"Webcam Logitech C920\",\"Tablet Samsung Galaxy Tab\",\"Smartphone iPhone 14\",\"Smartwatch Apple Watch\",\"Impresora HP LaserJet\",\"Router WiFi 6\",\"Disco Duro Externo 1TB\",\"Memoria RAM 16GB DDR4\",\"SSD 500GB NVMe\",\"Tarjeta Gráfica RTX 3060\",\"Procesador Intel i7\",\"Placa Base ASUS\",\"Fuente Alimentación 750W\",\"Gabinete ATX\",\"Ventilador CPU\",\"Pasta Térmica\",\"Cable HDMI\",\"Hub USB-C\",\"Adaptador USB-C a HDMI\",\"Cargador USB-C 65W\",\"Batería Externa 20000mAh\",\"Estuche Laptop 15 pulgadas\",\"Alfombrilla Mouse\",\"Soporte Monitor\",\"Brazo Monitor\",\"Lámpara LED Escritorio\",\"Micrófono Blue Yeti\",\"Auriculares Gaming\",\"Silla Ergonómica\",\"Escritorio Ajustable\",\"Organizador Cables\",\"Filtro Pantalla\",\"Base Refrigeración Laptop\",\"Cooler CPU\",\"Ventilador Case 120mm\"]",
+			"type": "string"
+		}
+	],
 	"item": [
 		{
-			"name": "Create Franchise (Random Name)",
+			"name": "1. Create Franchise",
 			"event": [
 				{
 					"listen": "prerequest",
 					"script": {
+						"type": "text/javascript",
 						"exec": [
-							"// Generar número aleatorio entre 1 y 1000",
-							"const randomNumber = Math.floor(Math.random() * 1000) + 1;",
+							"// Obtener el índice actual de franquicia desde la iteración del Collection Runner",
+							"const iteration = pm.info.iteration || 0;",
+							"const franchiseIndex = iteration;",
 							"",
-							"// Generar nombre con formato \"fra\" + número aleatorio",
-							"const franchiseName = `fra${randomNumber}`;",
+							"// Generar nombre único para la franquicia",
+							"const franchiseNumber = franchiseIndex + 1;",
+							"const franchiseName = `Franquicia ${franchiseNumber.toString().padStart(3, '0')}`;",
+							"const franchiseDescription = `Descripción de la franquicia ${franchiseNumber}`;",
 							"",
-							"// Establecer la variable de entorno para usar en el body",
-							"pm.environment.set(\"franchise_name\", franchiseName);",
-							"pm.environment.set(\"random_number\", randomNumber);",
+							"// Determinar cuántas sucursales crear (entre 10 y 20)",
+							"const branchesCount = Math.floor(Math.random() * 11) + 10; // 10-20",
 							"",
-							"// Log para debugging",
-							"console.log(`Generated franchise name: ${franchiseName}`);"
-						],
-						"type": "text/javascript"
+							"// Guardar variables",
+							"pm.collectionVariables.set('franchise_name', franchiseName);",
+							"pm.collectionVariables.set('franchise_description', franchiseDescription);",
+							"pm.collectionVariables.set('branchesToCreate', branchesCount.toString());",
+							"pm.collectionVariables.set('branchIndex', '0');",
+							"pm.collectionVariables.set('franchiseIndex', franchiseIndex.toString());",
+							"",
+							"console.log(`\\n=== Iteración ${franchiseNumber}/100 ===`);",
+							"console.log(`Creando franquicia: ${franchiseName} con ${branchesCount} sucursales`);"
+						]
 					}
 				},
 				{
 					"listen": "test",
 					"script": {
+						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Status code is 201\", function () {",
+							"pm.test('Status code is 201', function () {",
 							"    pm.response.to.have.status(201);",
 							"});",
 							"",
-							"pm.test(\"Response has correct structure\", function () {",
+							"pm.test('Response has correct structure', function () {",
 							"    var jsonData = pm.response.json();",
 							"    pm.expect(jsonData).to.have.property('code');",
-							"    pm.expect(jsonData).to.have.property('title');",
 							"    pm.expect(jsonData).to.have.property('data');",
 							"    pm.expect(jsonData.code).to.eql('S201000');",
 							"});",
 							"",
-							"pm.test(\"Franchise ID is numeric\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    var id = jsonData.data.id;",
-							"    pm.expect(id).to.match(/^\\d+$/);",
-							"    console.log(`Created franchise with ID: ${id}`);",
-							"});"
-						],
-						"type": "text/javascript"
+							"// Guardar el ID de la franquicia creada",
+							"var jsonData = pm.response.json();",
+							"if (jsonData && jsonData.data && jsonData.data.id) {",
+							"    pm.collectionVariables.set('currentFranchiseId', jsonData.data.id);",
+							"    console.log(`✓ Franquicia creada con ID: ${jsonData.data.id}`);",
+							"    ",
+							"    // Continuar con la creación de sucursales",
+							"    postman.setNextRequest('2. Create Branch');",
+							"} else {",
+							"    console.log('✗ Error: No se pudo obtener el ID de la franquicia');",
+							"    postman.setNextRequest(null);",
+							"}"
+						]
 					}
 				}
 			],
@@ -70,7 +131,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"{{franchise_name}}\"\n}",
+					"raw": "{\n  \"name\": \"{{franchise_name}}\",\n  \"description\": \"{{franchise_description}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -78,18 +139,226 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchises",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/franchises",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"franchises"
 					]
 				},
-				"description": "Crea una nueva franquicia con un nombre aleatorio (fra1 a fra1000)"
+				"description": "Crea una nueva franquicia"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Create Branch",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Obtener el índice actual de sucursal",
+							"const branchIndex = parseInt(pm.collectionVariables.get('branchIndex') || '0');",
+							"const branchesToCreate = parseInt(pm.collectionVariables.get('branchesToCreate') || '0');",
+							"const franchiseId = pm.collectionVariables.get('currentFranchiseId');",
+							"",
+							"// Verificar si ya se crearon todas las sucursales",
+							"if (branchIndex >= branchesToCreate) {",
+							"    console.log(`\\n✓ Completadas ${branchesToCreate} sucursales para la franquicia ${franchiseId}`);",
+							"    postman.setNextRequest(null);",
+							"    return;",
+							"}",
+							"",
+							"// Generar datos aleatorios para la sucursal",
+							"const branchNumber = branchIndex + 1;",
+							"const cities = ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Armenia'];",
+							"const city = cities[Math.floor(Math.random() * cities.length)];",
+							"const streetNumber = Math.floor(Math.random() * 200) + 1;",
+							"const streetNumber2 = Math.floor(Math.random() * 100) + 1;",
+							"",
+							"const branchName = `Sucursal ${city} ${branchNumber}`;",
+							"const branchAddress = `Calle ${streetNumber} #${streetNumber2}-${Math.floor(Math.random() * 50)}`;",
+							"",
+							"// Determinar cuántos productos crear (mínimo 10, máximo 20)",
+							"const productsCount = Math.floor(Math.random() * 11) + 10; // 10-20",
+							"",
+							"// Guardar variables",
+							"pm.collectionVariables.set('branch_name', branchName);",
+							"pm.collectionVariables.set('branch_address', branchAddress);",
+							"pm.collectionVariables.set('branch_city', city);",
+							"pm.collectionVariables.set('productsToCreate', productsCount.toString());",
+							"pm.collectionVariables.set('productIndex', '0');",
+							"",
+							"console.log(`\\n  [${branchNumber}/${branchesToCreate}] Creando sucursal: ${branchName} con ${productsCount} productos`);"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Status code is 201', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"// Guardar el ID de la sucursal creada",
+							"var jsonData = pm.response.json();",
+							"if (jsonData && jsonData.data && jsonData.data.id) {",
+							"    pm.collectionVariables.set('currentBranchId', jsonData.data.id);",
+							"    console.log(`    ✓ Sucursal creada con ID: ${jsonData.data.id}`);",
+							"    ",
+							"    // Continuar con la creación de productos",
+							"    postman.setNextRequest('3. Create Product');",
+							"} else {",
+							"    console.log('    ✗ Error: No se pudo obtener el ID de la sucursal');",
+							"    // Intentar crear la siguiente sucursal",
+							"    const branchIndex = parseInt(pm.collectionVariables.get('branchIndex') || '0');",
+							"    pm.collectionVariables.set('branchIndex', (branchIndex + 1).toString());",
+							"    postman.setNextRequest('2. Create Branch');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{branch_name}}\",\n  \"address\": \"{{branch_address}}\",\n  \"city\": \"{{branch_city}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/franchises/{{currentFranchiseId}}/branches",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"franchises",
+						"{{currentFranchiseId}}",
+						"branches"
+					]
+				},
+				"description": "Crea una nueva sucursal para la franquicia actual"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Create Product",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Obtener el índice actual de producto",
+							"const productIndex = parseInt(pm.collectionVariables.get('productIndex') || '0');",
+							"const productsToCreate = parseInt(pm.collectionVariables.get('productsToCreate') || '0');",
+							"",
+							"// Verificar si ya se crearon todos los productos",
+							"if (productIndex >= productsToCreate) {",
+							"    // Resetear índice de producto y continuar con la siguiente sucursal",
+							"    pm.collectionVariables.set('productIndex', '0');",
+							"    const branchIndex = parseInt(pm.collectionVariables.get('branchIndex') || '0');",
+							"    pm.collectionVariables.set('branchIndex', (branchIndex + 1).toString());",
+							"    console.log(`    ✓ Completados ${productsToCreate} productos para la sucursal`);",
+							"    postman.setNextRequest('2. Create Branch');",
+							"    return;",
+							"}",
+							"",
+							"// Obtener el pool de nombres de productos",
+							"const productNamesPool = JSON.parse(pm.collectionVariables.get('productNamesPool') || '[]');",
+							"",
+							"// Seleccionar un nombre aleatorio del pool (permite repetición entre sucursales)",
+							"const productName = productNamesPool[Math.floor(Math.random() * productNamesPool.length)];",
+							"",
+							"// Generar stock aleatorio entre 10 y 500",
+							"const stock = Math.floor(Math.random() * 491) + 10; // 10-500",
+							"",
+							"// Guardar variables",
+							"pm.collectionVariables.set('product_name', productName);",
+							"pm.collectionVariables.set('product_stock', stock.toString());",
+							"",
+							"// Log cada 5 productos para no saturar la consola",
+							"if ((productIndex + 1) % 5 === 0 || productIndex === 0) {",
+							"    console.log(`      [${productIndex + 1}/${productsToCreate}] Producto: ${productName} (Stock: ${stock})`);",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Status code is 201', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"// Incrementar el índice de producto",
+							"const productIndex = parseInt(pm.collectionVariables.get('productIndex') || '0');",
+							"pm.collectionVariables.set('productIndex', (productIndex + 1).toString());",
+							"",
+							"// Continuar creando productos hasta completar",
+							"postman.setNextRequest('3. Create Product');"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{product_name}}\",\n  \"stock\": {{product_stock}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/franchises/{{currentFranchiseId}}/branches/{{currentBranchId}}/products",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"franchises",
+						"{{currentFranchiseId}}",
+						"branches",
+						"{{currentBranchId}}",
+						"products"
+					]
+				},
+				"description": "Crea un nuevo producto para la sucursal actual con stock aleatorio entre 10-500"
 			},
 			"response": []
 		}
